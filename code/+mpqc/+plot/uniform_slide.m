@@ -65,8 +65,15 @@ function uniform_slide(fname,varargin)
 
     hold on
     nContours = 10;
-    contour(plotData,nContours,'Color',[0.95,0.95,1],'linewidth',1)
-    colormap(gray(nContours+1))
+    colThreshold = 0.6;
+    contourf(plotData, nContours, 'LineColor', 'none');
+    if median(plotData(:)/max(plotData(:))) > colThreshold
+        caxis([0,colThreshold*max(plotData(:))])
+    else
+        caxis([0, max(plotData(:))])
+    end
+    color_tmp = gray(nContours+2);
+    colormap(color_tmp(1:end-1,:)) % use grayscale wuthout white
 
 
     % Add diagonal lines which we will use later to associate with the next plot

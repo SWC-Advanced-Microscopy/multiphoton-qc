@@ -2,6 +2,10 @@
 # Change-Log
 
 
+### 2025/02/25
+* Minor improvements to uniform slide plotting function to auto adjust its color range. Sumiya Kuroda [#91](https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/issues/91).
+
+
 ### 2025/02/24
 * BUGFIX: correctly display photon counts in lens paper data where multiple channels were acquired at once.
 * BUGFIX: if weighted fit fails do a Huber fit.
