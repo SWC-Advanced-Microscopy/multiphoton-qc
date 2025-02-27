@@ -34,32 +34,33 @@ d = dir(data_dir);
 n=1;
 for ii=1:length(d)
     tmp = d(ii);
+    if contains(tmp.name,'.tif')
+        if contains(tmp.name,'electrical_noise')
+            out(n) = generic_generator_template(tmp);
+            out(n).type = 'electrical_noise';
+            out(n).plotting_func = @mpqc.plot.electrical_noise;
+            n=n+1;
+        elseif contains(tmp.name,'uniform_slide_')
+            out(n) = generic_generator_template(tmp);
+            out(n).type = 'uniform_slide';
+            out(n).plotting_func = @mpqc.plot.uniform_slide;
+            n=n+1;
 
-    if contains(tmp.name,'electrical_noise')
-        out(n) = generic_generator_template(tmp);
-        out(n).type = 'electrical_noise';
-        out(n).plotting_func = @mpqc.plot.electrical_noise;
-        n=n+1;
-    elseif contains(tmp.name,'uniform_slide_')
-        out(n) = generic_generator_template(tmp);
-        out(n).type = 'uniform_slide';
-        out(n).plotting_func = @mpqc.plot.uniform_slide;
-        n=n+1;
-
-        out(n) = generic_generator_template(tmp);
-        out(n).type = 'laser_stability';
-        out(n).plotting_func = @mpqc.plot.uniform_slide_laser_stability;
-        n=n+1;
-    elseif contains(tmp.name,'lens_paper_')
-        out(n) = generic_generator_template(tmp);
-        out(n).type = 'lens_paper';
-        out(n).plotting_func = @mpqc.plot.lens_paper;
-        n=n+1;
-    elseif contains(tmp.name,'standard_source')
-        out(n) = generic_generator_template(tmp);
-        out(n).type = 'standard_source';
-        out(n).plotting_func = @mpqc.plot.standard_light_source;
-        n=n+1;
+            out(n) = generic_generator_template(tmp);
+            out(n).type = 'laser_stability';
+            out(n).plotting_func = @mpqc.plot.uniform_slide_laser_stability;
+            n=n+1;
+        elseif contains(tmp.name,'lens_paper_')
+            out(n) = generic_generator_template(tmp);
+            out(n).type = 'lens_paper';
+            out(n).plotting_func = @mpqc.plot.lens_paper;
+            n=n+1;
+        elseif contains(tmp.name,'standard_source')
+            out(n) = generic_generator_template(tmp);
+            out(n).type = 'standard_source';
+            out(n).plotting_func = @mpqc.plot.standard_light_source;
+            n=n+1;
+        end
     end
 end
 
