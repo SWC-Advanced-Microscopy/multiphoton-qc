@@ -1,4 +1,4 @@
-function [d,out,noiseData] = long_electrical_noise(data_dir)
+function [d,out,noiseData,fwhm] = long_electrical_noise(data_dir)
 
 
 
@@ -33,13 +33,21 @@ for i = 1:length(out)
         noiseData(:,:,i) = imread(out(i).full_path_to_data);
     end
 end
-% t_im = single(imstack(:,:,ii));
-%         [n,x] = hist(t_im(:),100);
-%         a=area(x,n);
+noiseData = single(noiseData);
+fwhm = 1;
+% for t = 1:size(noiseData,3)
 % 
+    t_im = noiseData(:,:,t);
+%     % figure;
+    [n,x] = hist(t_im(:),100); % plots all data as histogram
+%     % a=area(x,n);
+%     % a.EdgeColor=[0,0,0.75];
+%     % a.FaceColor=[0.5,0.5,1];
+%     % a.LineWidth=2;
 % 
-%         a.EdgeColor=[0,0,0.75];
-%         a.FaceColor=[0.5,0.5,1];
-%         a.LineWidth=2;
-
+    halfMaxVal(t) = max(n(:))/2;
+    leftIndex = find(n(:) >= halfMaxVal, 1, 'first');
+    rightIndex = find(n(:) >= halfMaxVal, 1, 'last');
+    fwhm(t) = n(rightIndex) - n(leftIndex);
+% end
 end
