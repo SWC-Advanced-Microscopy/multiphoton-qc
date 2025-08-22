@@ -34,20 +34,25 @@ for i = 1:length(out)
     end
 end
 noiseData = single(noiseData);
-fwhm = 1;
-% for t = 1:size(noiseData,3)
+% fwhm = 1;
+for t = 1:size(noiseData,3)
 % 
     t_im = noiseData(:,:,t);
+    % t_im = noiseData(:,:,2);
 %     % figure;
     [n,x] = hist(t_im(:),100); % plots all data as histogram
-%     % a=area(x,n);
-%     % a.EdgeColor=[0,0,0.75];
-%     % a.FaceColor=[0.5,0.5,1];
-%     % a.LineWidth=2;
+    figure;
+    a=area(x,n);
+    a.EdgeColor=[0,0,0.75];
+    a.FaceColor=[0.5,0.5,1];
+    a.LineWidth=2;
 % 
-    halfMaxVal(t) = max(n(:))/2;
-    leftIndex = find(n(:) >= halfMaxVal, 1, 'first');
+    % halfMaxVal(t) = max(n(:))/2;
+    halfMaxVal = max(n(:))/2;
+    leftIndex = find(n(:) >= halfMaxVal, 1, 'first'); 
     rightIndex = find(n(:) >= halfMaxVal, 1, 'last');
     fwhm(t) = n(rightIndex) - n(leftIndex);
-% end
+    % fwhm = n(rightIndex) - n(leftIndex);
+end
+figure; plot(fwhm)
 end
