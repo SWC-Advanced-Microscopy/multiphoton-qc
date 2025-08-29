@@ -38,21 +38,24 @@ noiseData = single(noiseData);
 for t = 1:size(noiseData,3)
 % 
     t_im = noiseData(:,:,t);
-    % t_im = noiseData(:,:,2);
-%     % figure;
     [n,x] = hist(t_im(:),100); % plots all data as histogram
     figure;
-    a=area(x,n);
+    a=area(n);
     a.EdgeColor=[0,0,0.75];
     a.FaceColor=[0.5,0.5,1];
     a.LineWidth=2;
-% 
-    % halfMaxVal(t) = max(n(:))/2;
-    halfMaxVal = max(n(:))/2;
-    leftIndex = find(n(:) >= halfMaxVal, 1, 'first'); 
-    rightIndex = find(n(:) >= halfMaxVal, 1, 'last');
-    fwhm(t) = n(rightIndex) - n(leftIndex);
-    % fwhm = n(rightIndex) - n(leftIndex);
+    hold on
+    m = smoothdata(n,'gaussian',5);
+    detail = interp1(x,m,[1:1000]);
+    b = plot(m);
+    b.LineWidth = 2;
+
+    hold off
+   
+    halfMaxVal = max(detail(:))/2;
+    leftIndex = find(detail(:) >= halfMaxVal, 1, 'first'); 
+    rightIndex = find(detail(:) >= halfMaxVal, 1, 'last');
+    fwhm(t) = rightIndex -leftIndex;
 end
 figure; plot(fwhm)
 end
