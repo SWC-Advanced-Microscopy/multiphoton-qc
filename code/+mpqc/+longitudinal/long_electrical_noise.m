@@ -6,12 +6,12 @@ if nargin<1
     data_dir = pwd;
 end
 
-d = dir(fullfile(data_dir,'\**'));
+d = dir(fullfile(data_dir,'\**\*.tif'));
 n=1;
 for ii=1:length(d)
     tmp = d(ii);
 
-    if contains(tmp.name,'electrical_noise')
+    if contains(tmp.name,'electrical_noise')% && contains(tmp.name)
         out(n) = generic_generator_template(tmp);
         out(n).type = 'electrical_noise';
         out(n).plotting_func = @mpqc.plot.electrical_noise;
@@ -51,11 +51,15 @@ for t = 1:size(noiseData,3)
     b.LineWidth = 2;
 
     hold off
-   
-    halfMaxVal = max(detail(:))/2;
+    maxVal(t) = max(detail(:));
+    halfMaxVal = maxVal(t)/2;
     leftIndex = find(detail(:) >= halfMaxVal, 1, 'first'); 
     rightIndex = find(detail(:) >= halfMaxVal, 1, 'last');
     fwhm(t) = rightIndex -leftIndex;
 end
-figure; plot(fwhm)
+figure; 
+subplot(2,1,1)
+plot(maxVal)
+subplot(2,1,2)
+plot(fwhm)
 end
