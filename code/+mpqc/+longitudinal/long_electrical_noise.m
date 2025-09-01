@@ -42,47 +42,51 @@ end
 
 for i = 1:length(out)
     if contains(out(i).full_path_to_data, '.tif')
-        noiseData(:,:,i) = imread(out(i).full_path_to_data);
+        % noiseData(:,:,i) = imread(out(i).full_path_to_data);
+        noiseData(:,:,:,i) = mpqc.tools.scanImage_stackLoad(out(i).full_path_to_data);
     end
 end
 
 noiseData = single(noiseData);
-% fwhm = 1;
-for t = 1:size(noiseData,3)
-    %
-    t_im = noiseData(:,:,t);
-    [n,x] = hist(t_im(:),100); % plots all data as histogram
-    % figure;
-    % a=area(n);
-    % a.EdgeColor=[0,0,0.75];
-    % a.FaceColor=[0.5,0.5,1];
-    % a.LineWidth=2;
-    % hold on
-    m = smoothdata(n,'gaussian',5);
-    detail = interp1(x,m,[1:1000]);
-    % b = plot(m);
-    % b.LineWidth = 2;
-    % title(out(t).date)
-    % 
-    % hold off
-    maxVal(t) = max(detail(:));
-    halfMaxVal = maxVal(t)/2;
-    leftIndex = find(detail(:) >= halfMaxVal, 1, 'first');
-    rightIndex = find(detail(:) >= halfMaxVal, 1, 'last');
-    fwhm(t) = rightIndex -leftIndex;
+fwhm = 1; % TEMPORARY to allow script to run
+for q = 1:size(noiseData,4)
+    for t = 1:size(noiseData,3)
+        %
+        subplot(2,2,t)
+        t_im = noiseData(:,:,t,q);
+        [n,x] = hist(t_im(:),100); % plots all data as histogram
+        figure;
+        a=area(n);
+        a.EdgeColor=[0,0,0.75];
+        a.FaceColor=[0.5,0.5,1];
+        a.LineWidth=2;
+        hold on
+        m = smoothdata(n,'gaussian',5);
+        detail = interp1(x,m,[1:1000]);
+        b = plot(m);
+        b.LineWidth = 2;
+        title(out(t).date)
+
+        hold off
+        % maxVal(t,q) = max(detail(:));
+        % halfMaxVal = maxVal(t,q)/2;
+        % leftIndex = find(detail(:) >= halfMaxVal, 1, 'first');
+        % rightIndex = find(detail(:) >= halfMaxVal, 1, 'last');
+        % fwhm(t,q) = rightIndex -leftIndex;
+    end
 end
 
-xlabels = {out.date};
-figure;
-subplot(2,1,1)
-plot(maxVal)
-xticks(1:length(xlabels))
-xticklabels(xlabels)
-title('Max value')
-
-subplot(2,1,2)
-plot(fwhm)
-xticks(1:length(xlabels))
-xticklabels(xlabels)
-title('FWHM')
+% xlabels = {out.date};
+% figure;
+% subplot(2,1,1)
+% plot(maxVal)
+% xticks(1:length(xlabels))
+% xticklabels(xlabels)
+% title('Max value')
+% 
+% subplot(2,1,2)
+% plot(fwhm)
+% xticks(1:length(xlabels))
+% xticklabels(xlabels)
+% title('FWHM')
 end
