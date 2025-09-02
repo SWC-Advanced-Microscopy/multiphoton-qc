@@ -49,13 +49,15 @@ end
 
 noiseData = single(noiseData);
 fwhm = 1; % TEMPORARY to allow script to run
-for q = 1:size(noiseData,4)
-    for t = 1:size(noiseData,3)
+for q = 1:size(noiseData,4) % each date
+    figure;
+    for t = 1:size(noiseData,3) % each PMT
         %
+        
         subplot(2,2,t)
         t_im = noiseData(:,:,t,q);
         [n,x] = hist(t_im(:),100); % plots all data as histogram
-        figure;
+        
         a=area(n);
         a.EdgeColor=[0,0,0.75];
         a.FaceColor=[0.5,0.5,1];
@@ -65,7 +67,8 @@ for q = 1:size(noiseData,4)
         detail = interp1(x,m,[1:1000]);
         b = plot(m);
         b.LineWidth = 2;
-        title(out(t).date)
+        sgtitle(out(q).date)
+        title(['PMT # ',num2str(t)])
 
         hold off
         % maxVal(t,q) = max(detail(:));
