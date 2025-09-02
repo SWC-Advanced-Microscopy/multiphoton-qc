@@ -48,7 +48,7 @@ for i = 1:length(out)
 end
 
 noiseData = single(noiseData);
-fwhm = 1; % TEMPORARY to allow script to run
+% fwhm = 1; % TEMPORARY to allow script to run
 for q = 1:size(noiseData,4) % each date
     figure;
     for t = 1:size(noiseData,3) % each PMT
@@ -71,25 +71,28 @@ for q = 1:size(noiseData,4) % each date
         title(['PMT # ',num2str(t)])
 
         hold off
-        % maxVal(t,q) = max(detail(:));
-        % halfMaxVal = maxVal(t,q)/2;
-        % leftIndex = find(detail(:) >= halfMaxVal, 1, 'first');
-        % rightIndex = find(detail(:) >= halfMaxVal, 1, 'last');
-        % fwhm(t,q) = rightIndex -leftIndex;
+        maxVal(t,q) = max(detail(:));
+        halfMaxVal = maxVal(t,q)/2;
+        leftIndex = find(detail(:) >= halfMaxVal, 1, 'first');
+        rightIndex = find(detail(:) >= halfMaxVal, 1, 'last');
+        fwhm(t,q) = rightIndex -leftIndex;
     end
 end
 
-% xlabels = {out.date};
-% figure;
-% subplot(2,1,1)
-% plot(maxVal)
-% xticks(1:length(xlabels))
-% xticklabels(xlabels)
-% title('Max value')
-% 
-% subplot(2,1,2)
-% plot(fwhm)
-% xticks(1:length(xlabels))
-% xticklabels(xlabels)
-% title('FWHM')
+for iii = 1:size(noiseData,3) % plotting FWHM and max value over time for each PMT
+    xlabels = {out.date};
+    figure;
+    subplot(2,1,1)
+    plot(maxVal(iii,:))
+    xticks(1:length(xlabels))
+    xticklabels(xlabels)
+    title('Max value')
+
+    subplot(2,1,2)
+    plot(fwhm(iii,:))
+    xticks(1:length(xlabels))
+    xticklabels(xlabels)
+    title('FWHM')
+sgtitle(['PMT # ',num2str(iii)])
+end
 end
