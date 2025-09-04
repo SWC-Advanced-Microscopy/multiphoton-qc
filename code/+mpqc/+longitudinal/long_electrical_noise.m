@@ -113,9 +113,11 @@ function varargout = long_electrical_noise(data_dir)
     
     % Output of the main function 
     if nargout>0
-        out.directoryName = d;
+        out.fileName = {plotting_template(:).name};
         out.noiseData = noiseData; 
-        %out.fwhm = [plotting_template.fwhm];
+        % out.fwhm = [plotting_template.fwhm];
+        out.fwhm = fwhm;
+        out.maxValues = maxVal;
         out.date ={plotting_template(:).date};
         varargout{1} = out;
     end
