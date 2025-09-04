@@ -1,7 +1,8 @@
 function varargout = long_electrical_noise(data_dir)
     % Longitudinal electrical noise plots
     %
-    % mpqc.longitudinal.long_electrical_noise
+    % mpqc.longitudinal.long_electrical_noise(maintenace_folder_path)
+    % TODO - change to varargin so can give a date range to use
     %
     % Purpose
     % Plots of the maximum value and FWHM of electrical noise for each channel 
@@ -34,7 +35,7 @@ function varargout = long_electrical_noise(data_dir)
             [pathstr,plotting_template(n).name,ext] = fileparts(tmp.name);
             n=n+1;
             % else
-            %     disp('No files')
+            %     TODO add else for it no files found
         end
     end
     
@@ -45,21 +46,18 @@ function varargout = long_electrical_noise(data_dir)
     
     for ii = 1:length(plotting_template)
         if contains(plotting_template(ii).full_path_to_data, '.tif')
-            % noiseData(:,:,ii) = imread(out(i).full_path_to_data);
             noiseData(:,:,:,ii) = mpqc.tools.scanImage_stackLoad(plotting_template(ii).full_path_to_data);
         end
     end
     
     noiseData = single(noiseData);
-    % fwhm = 1; % TEMPORARY to allow script to run
+
     for q = 1:size(noiseData,4) % each date
 
         if debugPlots
             fig = mpqc.tools.returnFigureHandleForFile(sprintf('%s_%02d',mfilename,q));
         end
         for t = 1:size(noiseData,3) % each PMT
-            %
-            
 
             % Extract data
             t_im = noiseData(:,:,t,q);
@@ -87,9 +85,6 @@ function varargout = long_electrical_noise(data_dir)
                 title(['PMT # ',num2str(t)])
                 hold off
             end
-
-
-
         end
     end
     
@@ -115,7 +110,6 @@ function varargout = long_electrical_noise(data_dir)
     if nargout>0
         out.fileName = {plotting_template(:).name};
         out.noiseData = noiseData; 
-        % out.fwhm = [plotting_template.fwhm];
         out.fwhm = fwhm;
         out.maxValues = maxVal;
         out.date ={plotting_template(:).date};
