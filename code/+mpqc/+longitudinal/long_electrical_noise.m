@@ -38,7 +38,10 @@ function varargout = long_electrical_noise(data_dir)
         end
     end
     
-    
+    % sort plotting_template data by the date/time
+    date_list = [plotting_template.date];
+    [~,order] = sort(datenum(date_list,'dd-mm-yyyy hh:MM:ss'),1,'ascend');
+    plotting_template = plotting_template(order);
     
     for ii = 1:length(plotting_template)
         if contains(plotting_template(ii).full_path_to_data, '.tif')
