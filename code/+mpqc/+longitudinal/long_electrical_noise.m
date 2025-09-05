@@ -1,7 +1,8 @@
-function varargout = long_electrical_noise(data_dir)
+function varargout = long_electrical_noise(data_dir,varargin)
     % Longitudinal electrical noise plots
     %
-    % mpqc.longitudinal.long_electrical_noise(maintenace_folder_path)
+    % mpqc.longitudinal.long_electrical_noise(maintenace_folder_path, varargin)
+    % Optional inputs: Starting date
     % TODO - change to varargin so can give a date range to use
     %
     % Purpose
@@ -24,24 +25,42 @@ function varargout = long_electrical_noise(data_dir)
     
     d = dir(fullfile(data_dir,'\**\*.tif')); % cTODO -- change "d" to a more descriptive name
     n=1;
-    for ii=1:length(d)
-        tmp = d(ii);
     
-        if contains(tmp.name,'electrical_noise')
-            plotting_template(n) = generic_generator_template(tmp);
-            plotting_template(n).type = 'electrical_noise';
-            plotting_template(n).plotting_func = @mpqc.plot.electrical_noise;
-            plotting_template(n).date = string(tmp.date);
-            [pathstr,plotting_template(n).name,ext] = fileparts(tmp.name);
-            n=n+1;
-            % else
-            %     TODO add else for it no files found
+        for ii=1:length(d)
+            tmp = d(ii);
+
+            if contains(tmp.name,'electrical_noise')
+                plotting_template(n) = generic_generator_template(tmp);
+                plotting_template(n).type = 'electrical_noise';
+                plotting_template(n).plotting_func = @mpqc.plot.electrical_noise;
+                plotting_template(n).date = string(tmp.date);
+                [pathstr,plotting_template(n).name,ext] = fileparts(tmp.name);
+                n=n+1;
+                % else
+                %     TODO add else for it no files found
+            end
         end
-    end
-    
+
+        % if nargin>1
+        %       Can either choose not to find files before a date, or
+        %       choose not to analyse files before the date, 2nd option
+        %       more simple and done in same area as ordering by date
+        % 
+        % end
+
+
     % sort plotting_template data by the date/time
     date_list = [plotting_template.date];
     [~,order] = sort(datenum(date_list,'dd-mm-yyyy hh:MM:ss'),1,'ascend');
+
+    if nargin > 1
+        % take out dates from the order based on the given input date
+        startDate = datetime(varargin{1});
+        if plotting_template.date % is equal to or later than startDate keep
+        % order = order(withoutdates);
+        end
+    end
+
     plotting_template = plotting_template(order);
     
     for ii = 1:length(plotting_template)
