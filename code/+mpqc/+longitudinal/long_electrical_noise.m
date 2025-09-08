@@ -40,14 +40,11 @@ function varargout = long_electrical_noise(data_dir,varargin)
                 %     TODO add else for it no files found
             end
         end
-
-        % if nargin>1
-        %       Can either choose not to find files before a date, or
-        %       choose not to analyse files before the date, 2nd option
-        %       more simple and done in same area as ordering by date
-        % 
-        % end
-
+if ~exist('plotting_template','var')% plotting_template == 0;
+disp('No electrical noise files found')
+varargout{1} = [];
+return
+end
 
     % sort plotting_template data by the date/time
     date_list = [plotting_template.date];
