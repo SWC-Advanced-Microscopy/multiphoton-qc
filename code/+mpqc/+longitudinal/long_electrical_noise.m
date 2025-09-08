@@ -2,7 +2,7 @@ function varargout = long_electrical_noise(data_dir,varargin)
     % Longitudinal electrical noise plots
     %
     % mpqc.longitudinal.long_electrical_noise(maintenace_folder_path, varargin)
-    % Optional inputs: Starting date
+    % Optional inputs: Starting date- month-year
     % TODO - change to varargin so can give a date range to use
     %
     % Purpose
@@ -52,16 +52,30 @@ function varargout = long_electrical_noise(data_dir,varargin)
     % sort plotting_template data by the date/time
     date_list = [plotting_template.date];
     [~,order] = sort(datenum(date_list,'dd-mm-yyyy hh:MM:ss'),1,'ascend');
-
-    % if nargin > 1
-    %     % take out dates from the order based on the given input date
-    %     startDate = datetime(varargin{1});
-    %     % if plotting_template.date % is equal to or later than startDate keep
-    %     % % order = order(withoutdates);
-    %     % end
-    % end
-
     plotting_template = plotting_template(order);
+
+    if nargin > 1
+        % take out dates from the order based on the given input date
+        startDate = datetime(varargin{1});
+        
+        % This will represent the index at which our (sorted) data is >=
+        % the given threshold value
+        startIndex = 1;
+
+        % While the date at the current index is BEFORE our minimum date
+        % move the index along as we haven't found the threshold data point
+        % The loop will stop at the point at which our order[startIndex]
+        % is GREATER THAN OR EQUAL TO our given minimum date threshold
+        while [plotting_template(startIndex).date] < startDate
+            % if datetime(order) => datetime(startDate) % is equal to or later than startDate keep
+                % order = order(withoutdates);
+            startIndex = startIndex + 1;
+        end
+
+        % Remove the data points before our minimum date by slicing
+        % from the found startIndex to the end of the list
+        plotting_template = plotting_template(startIndex:end);
+    end
     
     for ii = 1:length(plotting_template)
         if contains(plotting_template(ii).full_path_to_data, '.tif')
