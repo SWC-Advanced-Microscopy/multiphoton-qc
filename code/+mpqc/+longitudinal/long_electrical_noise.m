@@ -33,7 +33,7 @@ function varargout = long_electrical_noise(data_dir,varargin)
                 plotting_template(n) = generic_generator_template(tmp);
                 plotting_template(n).type = 'electrical_noise';
                 plotting_template(n).plotting_func = @mpqc.plot.electrical_noise;
-                plotting_template(n).date = string(tmp.date);
+                plotting_template(n).date = string(datetime(regexp(tmp.name, '(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})','match'),'InputFormat','yyyy-MM-dd_HH-mm-ss'));
                 [pathstr,plotting_template(n).name,ext] = fileparts(tmp.name);
                 n=n+1;
                 % else
@@ -53,13 +53,13 @@ function varargout = long_electrical_noise(data_dir,varargin)
     date_list = [plotting_template.date];
     [~,order] = sort(datenum(date_list,'dd-mm-yyyy hh:MM:ss'),1,'ascend');
 
-    if nargin > 1
-        % take out dates from the order based on the given input date
-        startDate = datetime(varargin{1});
-        if plotting_template.date % is equal to or later than startDate keep
-        % order = order(withoutdates);
-        end
-    end
+    % if nargin > 1
+    %     % take out dates from the order based on the given input date
+    %     startDate = datetime(varargin{1});
+    %     % if plotting_template.date % is equal to or later than startDate keep
+    %     % % order = order(withoutdates);
+    %     % end
+    % end
 
     plotting_template = plotting_template(order);
     
