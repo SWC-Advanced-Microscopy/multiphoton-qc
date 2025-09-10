@@ -21,7 +21,7 @@ for ii=1:length(maintenanceFiles)
         plotting_template(n).type = 'power';
         plotting_template(n).plotting_func = @mpqc.plot.power;
         plotting_template(n).date = string(datetime(regexp(tmp.name, '(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})','match'),'InputFormat','yyyy-MM-dd_HH-mm-ss'));
-        plotting_template(n).wavelength = regexp(tmp.name,'\d*(?=nm)','match');
+        plotting_template(n).wavelength = cell2mat(regexp(tmp.name,'\d*(?=nm)','match'));
         [pathstr,plotting_template(n).name,ext] = fileparts(tmp.name);
         n=n+1;
     end
@@ -48,23 +48,45 @@ if nargin > 1 % Optional variable for selecting starting date
     plotting_template = plotting_template(startIndex:end);
 end
 
-for ii = 1:length(plotting_template)
-    if contains(plotting_template(ii).full_path_to_data, '.mat')
-        powerData(ii) = load(plotting_template(ii).full_path_to_data);
-        % plotting_template(ii).wavelength = powerData.powerMeasurements.laser_wavelength; % this, or take from title of .mat file
-        hold on 
-        plot([0:5:100],powerData(ii).powerMeasurements.observedPower,'.')
-    end
-end
-legend(plotting_template.date,'location', 'Northwest')
-title(cell2mat(['Power at ', string(plotting_template(1).wavelength), 'nm']))
-xlabel('Percent power')
-ylabel('Power (mW)')
-hold off 
+if isequal(plotting_template(:).wavelength) % if wavelength is the same
+    for ii = 1:length(plotting_template)
+        if contains(plotting_template(ii).full_path_to_data, '.mat')
+            % If power data is found, load it and find max value
+            powerData(ii) = load(plotting_template(ii).full_path_to_data);
+            maxPower(ii) = powerData(ii).powerMeasurements.observedPower(end);
 
-% identify wavelength
-% plot curves on same plot
-% different plot- plot the difference between curves
+            % Plot the power curves for each date
+            hold on
+            subplot(2,1,1)
+            plot([0:5:100],powerData(ii).powerMeasurements.observedPower,'.')
+            legend(plotting_template.date,'location', 'Northwest')
+            title(cell2mat(['Power at ', string(plotting_template(1).wavelength), 'nm']))
+            xlabel('Percent power')
+            ylabel('Power (mW)')
+            hold off
+        end
+    end
+    % Plot the maximum laser output over time
+    subplot(2,1,2)
+    plot(maxPower, '-*')
+    title('Maximum laser power')
+    xlabels = {plotting_template.date};
+    xticks(1:length(xlabels))
+    xticklabels(xlabels)
+    ylabel('Maximum power (mW)')
+else
+    disp('Different wavelengths found')
+    powerData = [];
+    maxPower = [];
+    % separate plots for each wavelength
+end
+
+
+
+% identify wavelength - done
+% plot curves on same plot - done
+% separate plots based on wavelength
+% max value to see decay of laser - done
 
 
 
@@ -76,6 +98,8 @@ if nargout>0
     out.fileName = {plotting_template(:).name};
     out.date ={plotting_template(:).date};
     out.powerData = powerData;
+    out.maxPower = maxPower;
+    out.wavelength = {plotting_template(:).wavelength};
     varargout{1} = out;
 end
 
