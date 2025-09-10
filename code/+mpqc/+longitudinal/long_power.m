@@ -1,8 +1,21 @@
 function varargout = long_power(data_dir,varargin)
 % Function to track the changes in laser power over time
+
+% mpqc.longitudinal.long_power(maintenace_folder_path, varargin)
+% Optional inputs: Starting date- month-year
+%
+% Purpose
+% Plots the power at the objective from 0-100% and compares maximum output
+% power over time. Used to monitor the health of a laser
+%
+%
+% Outputs
+% out (optional) - structure containing key information and data.
 %
 %
 %
+% Isabell Whiteley, SWC AMF 2025
+
 if nargin<1
     data_dir = pwd;
 end
@@ -21,7 +34,7 @@ for ii=1:length(maintenanceFiles)
         plotting_template(n).type = 'power';
         plotting_template(n).plotting_func = @mpqc.plot.power;
         plotting_template(n).date = string(datetime(regexp(tmp.name, '(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})','match'),'InputFormat','yyyy-MM-dd_HH-mm-ss'));
-        plotting_template(n).wavelength = cell2mat(regexp(tmp.name,'\d*(?=nm)','match'));
+        plotting_template(n).wavelength = str2num(cell2mat(regexp(tmp.name,'\d*(?=nm)','match')));
         [pathstr,plotting_template(n).name,ext] = fileparts(tmp.name);
         n=n+1;
     end
@@ -78,7 +91,8 @@ else
     disp('Different wavelengths found')
     powerData = [];
     maxPower = [];
-    % separate plots for each wavelength
+    % separate plots for each wavelength 
+    % in R2025a numunique function may work
 end
 
 
