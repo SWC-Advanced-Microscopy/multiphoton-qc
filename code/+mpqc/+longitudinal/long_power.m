@@ -23,13 +23,14 @@ if nargin<1
     data_dir = pwd;
 end
 
- % process inputs
-    % addpath("+tools");
-    optInputs =  parseInputVariable(varargin{:});
-
-    % Extract critical input variable
-    selectWavelength = optInputs.wavelength;
-   % TODO Add to parseInputVariable startDate
+% For elseif statement of wavelength given in varargin
+ % % process inputs 
+ %    % addpath("+tools");
+ %    optInputs =  parseInputVariable(varargin{:});
+ % 
+ %    % Extract critical input variable
+ %    selectWavelength = optInputs.wavelength;
+ %   % TODO Add to parseInputVariable startDate
 
 debugPlots = true;
 
@@ -99,15 +100,46 @@ if isequal(plotting_template(:).wavelength) % if wavelength is the same
     ylabel('Maximum power (mW)')
 
 % elseif isequal(plotting_template(:).wavelength,selectWavelength)
-elseif ~isempty(selectWavelength)
-    tempStruc = find(plotting_template(:).wavelength == selectWavelength);
-% if wavelength given in varargin, plot only that wavelength and dates 
+% elseif ~isempty(selectWavelength)
+%     tempStruc = find(plotting_template(:).wavelength == selectWavelength);
+% % if wavelength given in varargin, plot only that wavelength and dates 
 
 else
-    disp('Different wavelengths found')
-    powerData = [];
-    maxPower = [];
-    % separate plots for each wavelength 
+    % disp('Different wavelengths found')
+    % powerData = [];
+    % maxPower = [];
+    for i = 1:length(plotting_template)
+        allWave(i) = plotting_template(i).wavelength;
+    end
+    wavelengthVals = unique(allWave);
+    numWavelength = length(wavelengthVals);
+maxPower = cell(zeros(1:length(plotting_template)),zeros(1:length(wavelengthVals))); % Need to be cells because they will have empty values
+powerData = cell(zeros(1:length(plotting_template)),zeros(1:length(wavelengthVals)));
+ for jj = 1:length(numWavelength)
+     figure;
+     for ii = 1:length(plotting_template)
+     
+        if contains(plotting_template(ii).full_path_to_data, '.mat') && isequal(plotting_template(ii).wavelength,wavelengthVals(jj))
+            % If power data is found, load it and find max value
+            powerData(ii,jj) = load(plotting_template(ii).full_path_to_data);
+            maxPower(ii,jj) = powerData(ii).powerMeasurements.observedPower(end);
+
+
+              hold on
+            subplot(2,1,1)
+            plot([0:5:100],powerData(ii,jj).powerMeasurements.observedPower,'.')
+            legend(plotting_template.date,'location', 'Northwest')
+            title(cell2mat(['Power at ', string(wavelengthVals(jj)), 'nm']))
+            xlabel('Percent power')
+            ylabel('Power (mW)')
+            hold off
+        end
+     end
+ end
+    % for ii = 1:length(numWavelength)       
+    % end
+    % separate plots for each wavelength
+    % tried groupcounts
     % in R2025a numunique function may work
 
     % plot wavelengths separately, but keep all dates - so assisgn NaN to
