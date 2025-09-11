@@ -1,14 +1,17 @@
 function varargout = long_power(data_dir,varargin)
 % Function to track the changes in laser power over time
-
+%
 % mpqc.longitudinal.long_power(maintenace_folder_path, varargin)
-% Optional inputs: Starting date- month-year
+%
+% Optional inputs: 
+% 'startDate', month-year
+% 'wavelength, value
 %
 % Purpose
 % Plots the power at the objective from 0-100% and compares maximum output
 % power over time. Used to monitor the health of a laser
 %
-%
+%                
 % Outputs
 % out (optional) - structure containing key information and data.
 %
@@ -20,6 +23,13 @@ if nargin<1
     data_dir = pwd;
 end
 
+ % process inputs
+    % addpath("+tools");
+    optInputs =  parseInputVariable(varargin{:});
+
+    % Extract critical input variable
+    selectWavelength = optInputs.wavelength;
+   % TODO Add to parseInputVariable startDate
 
 debugPlots = true;
 
@@ -87,12 +97,22 @@ if isequal(plotting_template(:).wavelength) % if wavelength is the same
     xticks(1:length(xlabels))
     xticklabels(xlabels)
     ylabel('Maximum power (mW)')
+
+% elseif isequal(plotting_template(:).wavelength,selectWavelength)
+elseif ~isempty(selectWavelength)
+    tempStruc = find(plotting_template(:).wavelength == selectWavelength);
+% if wavelength given in varargin, plot only that wavelength and dates 
+
 else
     disp('Different wavelengths found')
     powerData = [];
     maxPower = [];
     % separate plots for each wavelength 
     % in R2025a numunique function may work
+
+    % plot wavelengths separately, but keep all dates - so assisgn NaN to
+    % unused dates. Make temporary structures so values are not permanently
+    %  replaced
 end
 
 
