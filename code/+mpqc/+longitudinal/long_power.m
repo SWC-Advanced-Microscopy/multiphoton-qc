@@ -113,9 +113,9 @@ else
     end
     wavelengthVals = unique(allWave);
     numWavelength = length(wavelengthVals);
-maxPower = cell(zeros(1:length(plotting_template)),zeros(1:length(wavelengthVals))); % Need to be cells because they will have empty values
-powerData = cell(zeros(1:length(plotting_template)),zeros(1:length(wavelengthVals)));
- for jj = 1:length(numWavelength)
+% maxPower = cell(length(plotting_template),length(wavelengthVals)); % Need to be cells because they will have empty values
+% powerData = cell(length(plotting_template),length(wavelengthVals));
+ for jj = 1:numWavelength
      figure;
      for ii = 1:length(plotting_template)
      
@@ -126,9 +126,9 @@ powerData = cell(zeros(1:length(plotting_template)),zeros(1:length(wavelengthVal
 
 
               hold on
-            subplot(2,1,1)
+            % subplot(2,1,1)
             plot([0:5:100],powerData(ii,jj).powerMeasurements.observedPower,'.')
-            legend(plotting_template.date,'location', 'Northwest')
+            legend(plotting_template(ii).date,'location', 'Northwest') % incorrect
             title(cell2mat(['Power at ', string(wavelengthVals(jj)), 'nm']))
             xlabel('Percent power')
             ylabel('Power (mW)')
