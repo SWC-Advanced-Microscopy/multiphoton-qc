@@ -34,6 +34,7 @@ end
 
 debugPlots = true;
 
+possibleFields = {'observedPower','observedPower_mW'};
 maintenanceFiles = dir(fullfile(data_dir,'\**\*.mat')); 
 n=1;
 
@@ -77,7 +78,12 @@ if isequal(plotting_template(:).wavelength) % if wavelength is the same
         if contains(plotting_template(ii).full_path_to_data, '.mat')
             % If power data is found, load it and find max value
             powerData(ii) = load(plotting_template(ii).full_path_to_data);
-            maxPower(ii) = powerData(ii).powerMeasurements.observedPower(end);
+            for i = 1:length(possibleFields)
+                if isfield(powerData.powerMeasurements,possibleFields{i})
+                    maxPower(ii) = powerData(ii).powerMeasurements.possibleFields{i}(end);
+                    break
+                end
+            end
 
             % Plot the power curves for each date
             hold on
@@ -99,10 +105,10 @@ if isequal(plotting_template(:).wavelength) % if wavelength is the same
     xticklabels(xlabels)
     ylabel('Maximum power (mW)')
 
-% elseif isequal(plotting_template(:).wavelength,selectWavelength)
-% elseif ~isempty(selectWavelength)
-%     tempStruc = find(plotting_template(:).wavelength == selectWavelength);
-% % if wavelength given in varargin, plot only that wavelength and dates 
+    % elseif isequal(plotting_template(:).wavelength,selectWavelength)
+    % elseif ~isempty(selectWavelength)
+    %     tempStruc = find(plotting_template(:).wavelength == selectWavelength);
+    % % if wavelength given in varargin, plot only that wavelength and dates
 
 else
     % disp('Different wavelengths found')
@@ -115,17 +121,26 @@ else
     numWavelength = length(wavelengthVals);
 % maxPower = cell(length(plotting_template),length(wavelengthVals)); % Need to be cells because they will have empty values
 % powerData = cell(length(plotting_template),length(wavelengthVals));
- for jj = 1:numWavelength
-     figure;
-     for ii = 1:length(plotting_template)
-     
+for jj = 1:numWavelength
+    figure;
+    for ii = 1:length(plotting_template)
+
         if contains(plotting_template(ii).full_path_to_data, '.mat') && isequal(plotting_template(ii).wavelength,wavelengthVals(jj))
             % If power data is found, load it and find max value
-            powerData(ii,jj) = load(plotting_template(ii).full_path_to_data);
-            maxPower(ii,jj) = powerData(ii).powerMeasurements.observedPower(end);
+
+            % powerData(ii,jj) =regexp(fileData.powerMeasurements,'observedPower');
+            powerData(ii) = load(plotting_template(ii).full_path_to_data);
+            for i = 1:length(possibleFields)
+                if isfield(powerData.powerMeasurements,possibleFields{i})
+                    maxPower(ii,jj) = powerData(ii).powerMeasurements.possibleFields{i}(end);
+                    break
+                end
+            end
+            % maxPower(ii,jj) = powerData(end);
+            % maxPower(ii,jj) = powerData(ii).powerMeasurements.observedPower(end);
 
 
-              hold on
+            hold on
             % subplot(2,1,1)
             plot([0:5:100],powerData(ii,jj).powerMeasurements.observedPower,'.')
             legend(plotting_template(ii).date,'location', 'Northwest') % incorrect
@@ -134,17 +149,17 @@ else
             ylabel('Power (mW)')
             hold off
         end
-     end
- end
-    % for ii = 1:length(numWavelength)       
-    % end
-    % separate plots for each wavelength
-    % tried groupcounts
-    % in R2025a numunique function may work
+    end
+end
+% for ii = 1:length(numWavelength)
+% end
+% separate plots for each wavelength
+% tried groupcounts
+% in R2025a numunique function may work
 
-    % plot wavelengths separately, but keep all dates - so assisgn NaN to
-    % unused dates. Make temporary structures so values are not permanently
-    %  replaced
+% plot wavelengths separately, but keep all dates - so assisgn NaN to
+% unused dates. Make temporary structures so values are not permanently
+%  replaced
 end
 
 
