@@ -8,8 +8,9 @@ and for measuring field of view size using an EM grid.
 ## Main functions
 
 * `mpqc.record.PSF` to easily acquire PSF stacks with ScanImage.
-* `mpqc.record.lens_tissue` to acquire standardised data from lens tissue.
+* `mpqc.record.lens_paper` to acquire standardised data from lens tissue.
 * `mpqc.record.standard_light_source` to data from a standard light source
+* `mpqc.record.electrical_noise` to measure the electrical noise of the PMTs.
 * `measurePSF` to estimate PSF size. For a demo, run `measurePSF('demo')`. 
 * `Grid2MicsPerPixel`  measures the number of microns per pixel along x and y by analyzing an image of an EM grid. 
 * `mpqc.tools.meanFrame` plots the mean frame intensity as a function of time whilst you are scanning.
