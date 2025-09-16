@@ -69,7 +69,7 @@ end
 
 function ss_files = getStandardSourceFiles(tDir)
 	% Return cell array of standard source file names
-	ss_files = dir(fullfile(tDir,'*_standard_light_source_*'));
+	ss_files = dir(fullfile(tDir,'*_standard_light_source_*.tif'));
 	ss_files = {ss_files(:).name};
 end
 
