@@ -98,6 +98,7 @@ classdef power < handle
         settlingTime = 0.33;
 
         laserWavelength
+        beamIndex = 1;
 
         powerMeasurements %- a structure containing the recorded data with fields:
         %   .observedPower_mW
@@ -150,6 +151,7 @@ classdef power < handle
             %
             % Inputs (optional param/val pairs. If not defined, a CLI prompt appears)
             %  'wavelength' - Excitation wavelength of the laser. Defined in nm.
+            %  'beamIndex' - The index of beam to be calibrated. 
             %
 
             if ~ismac % to enable debugging on Macs without hardware
@@ -166,6 +168,9 @@ classdef power < handle
                 obj.cachedSettings = mpqc.tools.recordScanImageSettings(obj.API);
 
                 %%
+                % List number of beams configured in ScanImage
+                numBeams = obj.API.numberOfAvailableBeams;
+
                 % Parse inputs and ensure user has supplied the current wavelength
                 if exist('BakingTray','file')
                     obj.hBT = BakingTray.getObject(true);
@@ -179,7 +184,7 @@ classdef power < handle
 
             obj.makeFigWindow
             obj.laserWavelength=out.wavelength; % here since it triggers a figure reset
-
+            obj.beamIndex=out.beamIndex;
 
         end % constructor
 
@@ -387,7 +392,7 @@ classdef power < handle
             obj.API.pointBeam
 
             % Zero laser before starting
-            obj.API.setLaserPower(0) ;
+            obj.API.setLaserPower(0, obj.beamIndex) ;
             pause(1) 
 
             box(obj.hAxPower,'on')
@@ -396,7 +401,7 @@ classdef power < handle
             % Record and plot graph as we go
             for ii = 1:obj.numSteps
 
-                obj.API.setLaserPower(powerSeriesPercent(ii)/100);
+                obj.API.setLaserPower(powerSeriesPercent(ii)/100, obj.beamIndex);
                 pause(obj.settlingTime); % pause for 0.1 seconds
 
                 for jj = 1:obj.sampleReps
@@ -406,7 +411,7 @@ classdef power < handle
 
                 % Overlay at the start the power scanimage thinks it is at each percentage
                 % laser power
-                SIpower_mW(ii) = obj.API.powerPercent2Watt(powerSeriesPercent(ii)/100)*1000;
+                SIpower_mW(ii) = obj.API.powerPercent2Watt(powerSeriesPercent(ii)/100, obj.beamIndex)*1000;
 
                 obj.H_observed.YData = observedPower_mW(:);
                 obj.H_meanVal.YData(ii) = mean(observedPower_mW(ii,:),2);
@@ -435,6 +440,7 @@ classdef power < handle
             obj.powerMeasurements.powerSeriesPercent = powerSeriesPercent;
             obj.powerMeasurements.currentTime = datestr(now,'yyyy-mm-dd_HH-MM-SS');
             obj.powerMeasurements.laserWavelength = obj.laserWavelength;
+            obj.powerMeasurements.beamIndex = obj.beamIndex;
             obj.powerMeasurements.fittedMinAndMax = [];
             obj.powerMeasurements.sensorName = obj.powermeter.sensorName;
 
@@ -496,7 +502,7 @@ classdef power < handle
             end
 
             minMax_W = round(obj.powerMeasurements.fittedMinAndMax)/1000;
-            obj.API.setBeamMinMaxPowerInW(minMax_W);
+            obj.API.setBeamMinMaxPowerInW(minMax_W, obj.beamIndex);
         end % calibrateSI_Callback
 
 
