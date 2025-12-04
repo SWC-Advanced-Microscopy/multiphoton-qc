@@ -14,6 +14,8 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
     % be constant over gain. You can generate a photons/pixel as a function of gain plot to
     % verify that your chosen gain is suitable.
     %
+    % ** Likely the easiest function to use is mpqc.analyse.get_quantalsize_from_file **
+    %
     %
     % Inputs (required)
     % frames: A time series or z stack in the format (height, width, time). Your data
@@ -26,7 +28,9 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
     %     the robust regression. The default is 0.2. Use a weight of 0 (or a very small value)
     %     to weigh each intensity level equally. Use 1.0 to weigh each intensity in proportion
     %     to pixel counts. If unsure leave as default. You can verify the effect of this
-    %     parameter by checking the fit with the plotPhotonFit function.
+    %     parameter by checking the fit with the plotPhotonFit function. NOTE: it seems
+    %     it is necessary to set the coef to 2 in order to get a satisfactory fit with some
+    %     datasets.
     %  min_count_proportion: This setting influences the magnitude of the smallest values
     %     that contribute to the fit. By default it is 0.07, meaning that the smallest values
     %     used for the fit will never be less than 7% of the maximum value used. If you see
@@ -54,8 +58,10 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
     %  to uint8. Note that to convert to photons we first subtract the zero (the X axis
     %  intercept) then divide by the quantal size.
     %
-    %  >> result = compute_quantalsize(frames(:,:,1000:1150));
-    %  >> dataInPhotonsPerPixel = (frames-result.zero_level) / result.quantal_size;
+    %  >> frames = mpqc.tools.scanImage_stackLoad(fname);
+    %  % We acquired two channels and so to analyse channel 2 we do:
+    %  >> result = mpqc.analyse.compute_quantalsize(frames(:,:,2:2:end));
+    %  >> mpqc.analyse.plotPhotonFit(OUT)
     %
     %
     %
@@ -66,7 +72,9 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
     %
     %
     % See also:
-    % plotPhotonFit
+    % mpqc.analyse.get_quantalsize_quantalsize_from_file
+    % mpqc.analyse.plotPhotonFit
+    %
     %
     % Rob Campbell, SWC AMF, February 2025
 
@@ -82,8 +90,8 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
 
     assert(ndims(frames) == 3, 'Input variable "frames" must have three dimensions.')
 
-    assert(count_weight_gamma>=0 && count_weight_gamma<=1, ...
-        'count_weight_gamma should be between 0 and 1')
+    %assert(count_weight_gamma>=0 && count_weight_gamma<=1, ...
+    %    'count_weight_gamma should be between 0 and 1')
 
     % Esnure all values are positive
     min_pix_val = min(frames(:));
@@ -159,8 +167,10 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
 
     try
         coefs_raw = robustfit(Xvals, variance, @(r) W , []);
+        weightedFit = true;
     catch
         fprintf('Weighted fit failed. Running fit with plain "huber" regression\n')
+        weightedFit = false;
         coefs_raw = robustfit(Xvals, variance, 'huber');
     end
 
@@ -182,6 +192,9 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
     % a catch-all to put whatever the user wants
     result = struct(...
         'model', coefs, ...
+        'count_weight_gamma', count_weight_gamma, ...
+        'min_count_proportion', min_count_proportion, ...
+        'weighted_fit', weightedFit, ...
         'counts', counts, ...
         'min_intensity', ind_start, ...
         'max_intensity', ind_stop, ...

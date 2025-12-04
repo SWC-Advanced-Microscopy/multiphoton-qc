@@ -114,6 +114,9 @@ function lens_paper(varargin)
 
     % TODO -- make it acquire on all available PMTS?
 
+    % Do not subtract channel offsets. This probably matters for using lens paper data
+    % to calibrate the standard source.
+    API.disableChannelOffsetSubtraction;
 
     API.hSI.hStackManager.framesPerSlice=numFramesToAcquire;
 

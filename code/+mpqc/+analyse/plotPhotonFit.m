@@ -29,7 +29,16 @@ function plotPhotonFit(STATS)
 % https://github.com/datajoint/anscombe-numcodecs by Dimitri Yatsenko
 
 
-[~,fname,ext] = fileparts(STATS.filename);
+tFname = STATS.filename;
+
+if isempty(tFname)
+    % If the file name is empty, then probably we are feeding in data manually at the
+    % CLI and this function was not called by get_quantalsize_from_file. So make up any
+    % filename so figure generation proceeds.
+    tFname = 'photon_fit';
+end
+
+[~,fname,ext] = fileparts(tFname);
 fname = [fname,ext];
 
 fig = mpqc.tools.returnFigureHandleForFile(fname);
@@ -40,7 +49,7 @@ fig.Name = fname;
 %%
 % The photon fit
 
-subplot(2,3,[1,4])
+ax1=subplot(2,3,1);
 % Plot the variance as a function of the mean and overlay the fit line
 intensity = STATS.min_intensity:STATS.max_intensity - 1;
 plot(intensity,STATS.variance,'.', 'color',[0.35,0.35,1],'markersize',4)
@@ -59,6 +68,19 @@ title(sprintf('Quantal size: %0.1f. Mean photons per pixel: %0.2f', ...
     STATS.quantal_size, STATS.photons_per_pixel))
 
 
+ax2=subplot(2,3,4);
+copyobj(ax1.Children,ax2);
+set(gca,'YScale','log')
+set(gca,'XScale','log')
+xlabel('Intensity')
+ylabel('Variance')
+grid on
+box on
+axis tight
+% Add some key statistics to the plot title
+title(sprintf('Quantal size: %0.1f. Mean photons per pixel: %0.2f', ...
+    STATS.quantal_size, STATS.photons_per_pixel))
+
 
 %%
 % The converted image
@@ -66,8 +88,15 @@ subplot(2,3,[2,5])
 [imStack,metadata]=mpqc.tools.scanImage_stackLoad(fname,false); %Do not subtract the offset
 
 % Correctly index this channel
-chanInd = find(metadata.channelSave == STATS.channel);
-nChans = length(metadata.channelSave);
+if ~isempty(STATS.channel)
+    chanInd = find(metadata.channelSave == STATS.channel);
+    nChans = length(metadata.channelSave);
+else
+    % Assume we have just one channel
+    fprintf('No channel information found in metadata. Assuming there is just one.\n')
+    chanInd = 1;
+    nChans = 1;
+end
 
 % Get this channel
 imStack = imStack(:,:,chanInd:nChans:end);
@@ -81,7 +110,7 @@ colorbar
 %%
 % The histogram of photon counts
 
-subplot(2,3,3)
+
 maxVal = max(muIm_p(:));
 if maxVal > 20
     nBins =  round(( maxVal/2.5)/10)*10;
@@ -89,12 +118,20 @@ else
     nBins = 10;
 end
 
+subplot(2,3,3)
 [n,x] = hist(muIm_p(:),nBins);
+
+if isempty(x)
+    fprintf('Image conversion failed\n')
+    return
+end
 
 plot(x,n,'LineWidth',3)
 xlabel('Intensity [photons]')
 ylabel('log(n)')
 set(gca,'YScale','log')
+set(gca,'XScale','log')
+
 grid on
 xlim([0,max(x)])
 
@@ -106,10 +143,16 @@ hold off
 title(sprintf('log(photons), mean = %0.2f', mu))
 
 
-subplot(2,3,6)
+
 nBins =  round(( max(muIm_p(:)) /1.5)/10)*10;
 [n,x] = hist(muIm_p(:),nBins);
 
+if isempty(x)
+    fprintf('Image conversion failed\n')
+    return
+end
+
+subplot(2,3,6)
 plot(x,n,'LineWidth',3)
 xlabel('Intensity [photons]')
 ylabel('n')
@@ -119,7 +162,7 @@ hold on
 plot([mu,mu], ylim,'r-')
 hold off
 
-% set x lim to encompass 95% of values
+% set xlim to encompass 99% of values
 CLIP=0.99;
 p = cumsum(n)/sum(n);
 f=find(p>CLIP);

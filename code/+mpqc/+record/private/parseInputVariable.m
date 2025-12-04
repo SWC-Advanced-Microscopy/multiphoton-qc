@@ -19,6 +19,7 @@ function out = parseInputVariable(varargin)
     %  'power' - Power at the sample. Defined in mW.
     %  'depthMicrons' - The number of microns over which to take a Z stack. Defined in um.
     %  'stepSize' - Step size between optical planes in a z-stack. Defined in um.
+    %  'beamIndex' - The index of beam to be calibrated.
     %
     % Notes:
     %  1. All inputs apart from stepSize are rounded to the nearest whole number.
@@ -45,6 +46,7 @@ function out = parseInputVariable(varargin)
     params.addParameter('power', [], @(x) isnumeric(x));
     params.addParameter('depthMicrons', [], @(x) isnumeric(x));
     params.addParameter('stepSize', [], @(x) isnumeric(x));
+    params.addParameter('beamIndex', [], @(x) isnumeric(x));
 
     % Parse the input arguments
     params.parse(varargin{:});
@@ -90,7 +92,17 @@ function out = parseInputVariable(varargin)
         out.wavelength = round(parseResponse(txt,default));
     end
 
-    if isempty(params.Results.power)
+    if isempty(params.Results.beamIndex) && strcmp(callerFile,'power.m')
+        if evalin('caller', 'numBeams') == 1
+            out.beamIndex = 1; % Only one beam is configured in ScanImage 
+        else
+            default=1;
+            txt = sprintf('Please enter index of beam for calibration [%d]: ',default);
+            out.beamIndex = round(parseResponse(txt,default));
+        end
+    end
+
+    if isempty(params.Results.power) && ~strcmp(callerFile,'power.m')
         default=75;
         txt = sprintf('Please enter power (mW) [%d]: ',default);
         out.power = round(parseResponse(txt,default));

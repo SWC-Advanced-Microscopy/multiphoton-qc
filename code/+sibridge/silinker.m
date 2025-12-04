@@ -193,8 +193,8 @@ classdef silinker < handle
 
         function numChans = numberOfAvailableChannels(obj)
             % Return the number of available channels as an integer
-            % These are all the channels that the microscope system can possibly acquire. 
-            % They may not all have a connected PMT. 
+            % These are all the channels that the microscope system can possibly acquire.
+            % They may not all have a connected PMT.
             % TODO -- I think there is no way to know whether one is connected
             numChans = obj.hSI.hChannels.channelsAvailable;
         end % numberOfAvailableChannels
@@ -237,8 +237,112 @@ classdef silinker < handle
             % is used for building file names so the '.' is replaced with '-'
 
             zFactStr = strrep(num2str(obj.hSI.hRoiManager.scanZoomFactor),'.','-');
-
         end % returnZoomFactorAsString
+
+
+        function pointBeam(obj)
+            obj.hSI.scanPointBeam
+        end
+
+
+        function parkBeam(obj)
+            % Park the beam (abort scanning)
+            %
+
+            obj.hSI.abort
+        end % parkBeam
+
+
+        function setLaserPower(obj,powerFraction,beamIndex)
+            % Set the laser power as a fraction
+            %
+            % Inputs
+            % powerFraction - the power fraction to which the laser power should be set
+            % beamIndex - 1 by default. Defines the beam to change.
+            %
+            % Outputs
+            % none
+
+            if nargin<3
+                beamIndex = 1;
+            end
+
+            obj.hSI.hBeams.hBeams{beamIndex}.setPowerFraction(powerFraction)
+        end % setLaserPower
+
+
+        function powerIn_mW = powerPercent2Watt(obj,powerFraction,beamIndex)
+            % Convert a laser power fraction value to mW
+            %
+            % Inputs
+            % powerFraction - a laser power fraction (0 to 1)
+            % beamIndex - 1 by default. Defines the beam to change.
+            %
+            % Outputs
+            % powerIn_mW - the expected number of mW at this power fraction
+
+            if nargin<3
+                beamIndex = 1;
+            end
+
+            if powerFraction<0 || powerFraction>1
+                powerIn_mW = [];
+                return
+            end
+
+            powerIn_mW = obj.hSI.hBeams.hBeams{beamIndex}.convertPowerFraction2PowerWatt(powerFraction);
+        end % powerPercent2Watt
+
+
+        function setBeamMinMaxPowerInW(obj,minMaxW,beamIndex)
+            % Set the min and max power of the beam 
+            %
+            % Purpose
+            % The Machine Data File of SI via the Settings panel determines the maximum and
+            % minimum power. The user can change this by editing the settings box manually.
+            % This method does the same thing for a defined beam.
+            %
+            % Inputs
+            % minMaxW - Vector of length 2 that defines [minW,maxW] of the laser
+            % beamIndex - 1 by default. Defines the beam to change.
+            %
+            % Outputs
+            % none
+
+
+            if nargin<3
+                beamIndex = 1;
+            end
+
+            if isempty(minMaxW) || ~isvector(minMaxW) || length(minMaxW)~=2
+                return
+            end
+
+            obj.hSI.hBeams.hBeams{beamIndex}.powerFraction2PowerWattLut(:,2) = minMaxW;
+
+        end % setBeamMinMaxPowerInW
+
+
+        function numBeams = numberOfAvailableBeams(obj)
+            % Return the number of available beams as an integer
+            numBeams = numel(obj.hSI.hBeams.hBeams);
+        end % numberOfAvailableBeams
+
+        function disableChannelOffsetSubtraction(obj)
+            % Disable the offset subtraction for the PMT inputs
+            %
+            % Purpose
+            % For some data we would like to calculate the offset ourselves rather than
+            % relying on ScanImage's offset subtraction.
+            %
+            % Inputs
+            % none
+            %
+            % Outputs
+            % None
+
+            obj.hSI.hChannels.channelSubtractOffset(:)=0;
+        end % disableChannelOffsetSubtraction
 
 
     end % Close methods

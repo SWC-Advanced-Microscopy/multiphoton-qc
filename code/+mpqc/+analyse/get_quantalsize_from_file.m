@@ -1,7 +1,7 @@
-function OUT = get_quantalsize_quantalsize_from_file(fname)
+function [OUT,data] = get_quantalsize_quantalsize_from_file(fname,count_weight_gamma)
 	% Get the quantal size and associated statistics from a file
 	%
-	% function OUT = mpqc.analyse.get_quantalsize_quantalsize_from_file(fname)
+	% function OUT = mpqc.analyse.get_quantalsize_quantalsize_from_file(fname,count_weight_gamma)
 	%
 	% Purpose
 	% Processes a file (likely a lens paper file) to extract the quantal size and associated
@@ -12,6 +12,7 @@ function OUT = get_quantalsize_quantalsize_from_file(fname)
 	%
 	% Inputs
 	% fname - relate or absolute path to a file
+	% count_weight_gamma - see help of  mpqc.analyse.compute_quantalsize
 	%
 	% Output
 	% Structure with extensive data on the recording and also the quantal size and offset.
@@ -27,6 +28,10 @@ function OUT = get_quantalsize_quantalsize_from_file(fname)
 	if nargin<1
 		[fname,pathToFile] = uigetfile('*.tif');
 		fname = fullfile(pathToFile,fname);
+	end
+
+	if nargin<2
+		count_weight_gamma = [];
 	end
 
 	if ~exist(fname,'file')
@@ -45,7 +50,7 @@ function OUT = get_quantalsize_quantalsize_from_file(fname)
 	for ii=1:nChans
 		% Run the analysis
 		tChan = im(:,:,ii:nChans:end);
-		OUT(ii) = mpqc.analyse.compute_quantalsize(tChan,0.2);
+		[OUT(ii),data(ii)] = mpqc.analyse.compute_quantalsize(tChan,count_weight_gamma);
 
 		% Fill in extra metadata
 		OUT(ii).channel = metadata.channelSave(ii);
@@ -64,7 +69,7 @@ end
 
 function ss_files = getStandardSourceFiles(tDir)
 	% Return cell array of standard source file names
-	ss_files = dir(fullfile(tDir,'*_standard_light_source_*'));
+	ss_files = dir(fullfile(tDir,'*_standard_light_source_*.tif'));
 	ss_files = {ss_files(:).name};
 end
 

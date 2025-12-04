@@ -31,7 +31,7 @@ function [imStack,metadata] = scanImage_stackLoad(fileName,subtractOffset)
     metadata = [];
 
     if ~exist(fileName,'file')
-        fprintf('%s does not exist. Not loading.\n',fileName)
+        fprintf('%s does not exist. scanImage_stackLoad will not load it.\n',fileName)
         return
     end
 

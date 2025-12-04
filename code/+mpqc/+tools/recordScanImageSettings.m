@@ -52,3 +52,5 @@ function settings = recordScanImageSettings(API)
     settings.pmtGains = API.hSI.hPmts.gains;
 
     settings.extTrigEnable = API.hSI.extTrigEnable;
+
+    settings.channelSubtractOffset = API.hSI.hChannels.channelSubtractOffset;

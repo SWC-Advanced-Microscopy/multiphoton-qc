@@ -145,9 +145,11 @@ function standard_light_source(channelSave,nFrames,gainsToTest,darkResponse)
 
     API.hSI.hChannels.loggingEnable=true;
 
-
     API.hSI.hChannels.channelSave = channelSave;
 
+    % Do not subtract channel offsets. This probably matters for using lens paper data
+    % to calibrate the standard source.
+    API.disableChannelOffsetSubtraction;
 
 
     API.turnOnAllPMTs; % Turn on all PMTs

@@ -144,7 +144,9 @@ They should also work on R2016a but are known to fail on 2015b and earlier.
 
 Requires the Curve-Fitting Toolbox, the Image Processing Toolbox, and the Stats Toolbox.
 The MATLAB Report Generator is needed if you want to make PDF reports.
-It is known to work with ScanImage Basic 2020 to 2022.
+It is known to work with ScanImage Basic 2020 to 2022.\
+Power automated measurements require the Instrument Control Toolbox. 
+You should also install NI VISA.
 
 ## Known Obvious Issues
 Please see the [list of known obvious issues](https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22known%20obvious%20issues%22) before using the software. 

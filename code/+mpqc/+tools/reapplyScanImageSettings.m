@@ -62,3 +62,5 @@ function settings = reapplyScanImageSettings(API,settings,verbose)
     API.hSI.hPmts.gains = settings.pmtGains;
 
     API.hSI.extTrigEnable = settings.extTrigEnable;
+
+    API.hSI.hChannels.channelSubtractOffset = settings.channelSubtractOffset;

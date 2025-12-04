@@ -1,28 +1,28 @@
 classdef meanFrame < handle
-% Monitor open ScanImage channel windows and plot a rolling average trace.
-%
-% To use this function simply run
-% "mpqc.tools.meanFrame" then press "Focus" in ScanImage
-% The current frame mean is present in the figure title along with a rolling average.
-%
-%
-% Advanced usage:
-% M=mpqc.tools.meanFrame
-%
-% % Change channel colors
-% M.channelColors='bkrr';
-% M.channelColors='rgkb';
-%
-% % Change the minimum update interval
-% M.minUpdateInterval=2; %To once every two seconds
-% M.minUpdateInterval=0.1; %To every 100 ms (assuming your FPS is fast enough)
-%
-% % Change the number of seconds to display
-% M.secondsToDisplay=5
-% M.secondsToDisplay=3
-%
-%
-% Rob Campbell, SWC AMF
+    % Monitor open ScanImage channel windows and plot a rolling average trace.
+    %
+    % To use this function simply run
+    % "mpqc.tools.meanFrame" then press "Focus" in ScanImage
+    % The current frame mean is present in the figure title along with a rolling average.
+    %
+    %
+    % Advanced usage:
+    % M=mpqc.tools.meanFrame
+    %
+    % % Change channel colors
+    % M.channelColors='bkrr';
+    % M.channelColors='rgkb';
+    %
+    % % Change the minimum update interval
+    % M.minUpdateInterval=2; %To once every two seconds
+    % M.minUpdateInterval=0.1; %To every 100 ms (assuming your FPS is fast enough)
+    %
+    % % Change the number of seconds to display
+    % M.secondsToDisplay=5
+    % M.secondsToDisplay=3
+    %
+    %
+    % Rob Campbell, SWC AMF
 
 
     properties
@@ -47,7 +47,7 @@ classdef meanFrame < handle
 
     properties (Hidden)
         maxChannels = 4
-        figureTag = 'meanTraceFig'
+        figureTag = 'meanTraceFig' %to help find the figure window
         axTag = 'meanTraceAx'
         plotDataH
         numDataPoints = 50 % Just a default. This will be modified automatically at run time
@@ -78,6 +78,8 @@ classdef meanFrame < handle
         end %constructor
 
         function delete(obj)
+            delete(obj.listener_acqState)
+            delete(obj.listener_frameDone)
             delete(obj.hFig)
         end
 
@@ -85,7 +87,7 @@ classdef meanFrame < handle
         function startStopAcqWithScanImage(obj,~,~)
             % If ScanImage is connected and it starts imaging then
             % acquisition starts. If a file is being saved in ScanImage
-            % then this causes this class to save data to dosk
+            % then this causes this class to save data to disk
             if isempty(obj.hSI)
                 fprintf('No ScanImage connected to meanFrame\n')
                 return
@@ -168,6 +170,8 @@ classdef meanFrame < handle
 
 
         function makeFigWindow(obj)
+            % Build the figure window if it is not already there
+
             axH = findobj('Tag',obj.axTag);
 
             if isempty(axH)

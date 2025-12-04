@@ -1,6 +1,27 @@
 
 # Change-Log
 
+### 2025/12/94
+* Allow serial number of equipment to be numeric only. 
+* Merge dev into master
+
+
+### 2025/12/01
+* Major improvements to power measurement to allow users to specify which beams to calibrate, if there are multiple beams configured. Sumiya Kuroda [Issues #108](https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/issues/108).
+
+### 2025/06/18
+* UPDATE: Convert power measurement code to a class and add features to enable automation 
+     of power measurements. Streamline how the interface to the power meter is handled. RAAC
+
+
+### 2025/03/07
+* NEW: Add facility for checking calibrated power at the sample plane automatically. Isabell Whiteley [PR #95]([https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/pull/95).
+
+
+
+### 2025/02/27
+* Run lens paper and standard source without ScanImage offset subtraction. 
+
 
 ### 2025/02/24
 * NEW: filter uniform slide more aggressively, which is needed for cases with uniform images
@@ -27,7 +48,7 @@ Merge of a bunch of recent changes by Rob Campbell
 
 ### 2024/07/19
 * NEW FEATURE: `mpsf.record` functions now all accept parameter/value pairs via standard interface.
-Inputs that are required not supplied when the function is called are requested interactively at the CLI. Isabell Whitely [PR #70](https://github.com/SWC-Advanced-Microscopy/measurePSF/pull/70).
+Inputs that are required not supplied when the function is called are requested interactively at the CLI. Isabell Whiteley [PR #70](https://github.com/SWC-Advanced-Microscopy/measurePSF/pull/70).
 
 
 ### 2024/07/05
