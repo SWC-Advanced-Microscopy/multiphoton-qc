@@ -1,6 +1,10 @@
 
 # Change-Log
 
+### 2025/12/94
+* Allow serial number of equipment to be numeric only. 
+* Merge dev into master
+
 
 ### 2025/12/01
 * Major improvements to power measurement to allow users to specify which beams to calibrate, if there are multiple beams configured. Sumiya Kuroda [Issues #108](https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/issues/108).
