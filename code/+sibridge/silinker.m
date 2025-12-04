@@ -271,21 +271,26 @@ classdef silinker < handle
         end % setLaserPower
 
 
-        function powerIn_mW = powerPercent2Watt(obj,powerFraction)
+        function powerIn_mW = powerPercent2Watt(obj,powerFraction,beamIndex)
             % Convert a laser power fraction value to mW
             %
             % Inputs
             % powerFraction - a laser power fraction (0 to 1)
+            % beamIndex - 1 by default. Defines the beam to change.
             %
             % Outputs
             % powerIn_mW - the expected number of mW at this power fraction
+
+            if nargin<3
+                beamIndex = 1;
+            end
 
             if powerFraction<0 || powerFraction>1
                 powerIn_mW = [];
                 return
             end
 
-            powerIn_mW = obj.hSI.hBeams.hBeams{1}.convertPowerFraction2PowerWatt(powerFraction);
+            powerIn_mW = obj.hSI.hBeams.hBeams{beamIndex}.convertPowerFraction2PowerWatt(powerFraction);
         end % powerPercent2Watt
 
 
@@ -316,6 +321,12 @@ classdef silinker < handle
             obj.hSI.hBeams.hBeams{beamIndex}.powerFraction2PowerWattLut(:,2) = minMaxW;
 
         end % setBeamMinMaxPowerInW
+
+
+        function numBeams = numberOfAvailableBeams(obj)
+            % Return the number of available beams as an integer
+            numBeams = numel(obj.hSI.hBeams.hBeams);
+        end % numberOfAvailableBeams
 
         function disableChannelOffsetSubtraction(obj)
             % Disable the offset subtraction for the PMT inputs

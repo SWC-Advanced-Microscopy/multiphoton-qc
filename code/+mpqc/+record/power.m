@@ -59,14 +59,16 @@ classdef power < handle
     % If you are happy that the recorded data look good, press the "Calibrate ScanImage"
     % button and re-run "Measure Power Curve". The expected and measured curves should
     % correspond closely. You may find that very low percent power values now correspond
-    % to negative power values. This is because of an imperfect offset of some modulators
+    % to negative power values. This may be due to an imperfect offset of some modulators
     % and arises from their sinusoidal relationship between command voltage and power
-    % output. In most cases these negative values are not a problem as we don't need the
-    % very low end of the scale. If you need to image a precise low power (such as 5 mW)
-    % it is a good idea to measure this before starting and not rely on ScanImage.
-    % If you use only lower power values, you can restrict the maximum command signal and
-    % play with the offset of the modulator to get a pretty good correspondence between
-    % actual and predicted power over your range of interest.
+    % output. It can also be due to your power meter sensor being too slow. Try altering 
+    % the settlingTime property if you are concerned about this. In most cases these 
+    % negative values are not a problem as we don't need the very low end of the scale. 
+    % If you need to image a precise low power (such as 5 mW) it is a good idea to measure 
+    % this before starting and not rely on ScanImage. If you use only lower power values, 
+    % you can restrict the maximum command signal and play with the offset of the modulator 
+    % to get a pretty good correspondence between actual and predicted power over your 
+    % range of interest.
     %
     %
     % ** BakingTray Interface
@@ -86,16 +88,17 @@ classdef power < handle
 
     properties
         % The number of steps over which the sample the power fraction range.
-        numSteps = 21;
+        numSteps = 11;
 
         % The number of times to measure power at each percent power value
         sampleReps = 4;
 
         % Time between changing the laser power and starting to measure.
         % This is to take into account settling time of the power sensor head.
-        settlingTime = 0.2;
+        settlingTime = 0.33;
 
         laserWavelength
+        beamIndex = 1;
 
         powerMeasurements %- a structure containing the recorded data with fields:
         %   .observedPower_mW
@@ -148,12 +151,8 @@ classdef power < handle
             %
             % Inputs (optional param/val pairs. If not defined, a CLI prompt appears)
             %  'wavelength' - Excitation wavelength of the laser. Defined in nm.
+            %  'beamIndex' - The index of beam to be calibrated. 
             %
-
-            %%
-            % Parse inputs and ensure user has supplied the current wavelength
-            out =  parseInputVariable(varargin{:});
-
 
             if ~ismac % to enable debugging on Macs without hardware
 
@@ -169,6 +168,9 @@ classdef power < handle
                 obj.cachedSettings = mpqc.tools.recordScanImageSettings(obj.API);
 
                 %%
+                % List number of beams configured in ScanImage
+                numBeams = obj.API.numberOfAvailableBeams;
+
                 % Parse inputs and ensure user has supplied the current wavelength
                 if exist('BakingTray','file')
                     obj.hBT = BakingTray.getObject(true);
@@ -182,7 +184,7 @@ classdef power < handle
 
             obj.makeFigWindow
             obj.laserWavelength=out.wavelength; % here since it triggers a figure reset
-
+            obj.beamIndex=out.beamIndex;
 
         end % constructor
 
@@ -353,7 +355,7 @@ classdef power < handle
             % Pre-allocate local variables for plotting
             observedPower_mW = nan(obj.numSteps, obj.sampleReps);
             SIpower_mW = nan(1, obj.numSteps)';
-            powerSeriesPercent = linspace(0,100,obj.numSteps);
+            powerSeriesPercent = linspace(1,100,obj.numSteps);
 
             % A linear fit will go here
             obj.H_fit = plot([powerSeriesPercent(1), powerSeriesPercent(end)], ...
@@ -369,7 +371,7 @@ classdef power < handle
                 'Parent', obj.hAxPower);
 
             % The predicted power from ScanImage
-            obj.H_SI_Power = plot(powerSeriesPercent_mW, SIpower_mW*1000, '-b', ...% TODO--why is that x1000?
+            obj.H_SI_Power = plot(powerSeriesPercent, SIpower_mW*1000, '-b', ...% TODO--why is that x1000?
                 'Parent', obj.hAxPower);
 
             hold(obj.hAxPower,'off')
@@ -389,8 +391,9 @@ classdef power < handle
             obj.API.turnOffAllPMTs
             obj.API.pointBeam
 
-            % control the laser power in percentage
-            obj.API.setLaserPower(.01) ; % set laser power to 1%
+            % Zero laser before starting
+            obj.API.setLaserPower(0, obj.beamIndex) ;
+            pause(1) 
 
             box(obj.hAxPower,'on')
             grid(obj.hAxPower,'on')
@@ -398,7 +401,7 @@ classdef power < handle
             % Record and plot graph as we go
             for ii = 1:obj.numSteps
 
-                obj.API.setLaserPower(powerSeriesPercent(ii)/100);
+                obj.API.setLaserPower(powerSeriesPercent(ii)/100, obj.beamIndex);
                 pause(obj.settlingTime); % pause for 0.1 seconds
 
                 for jj = 1:obj.sampleReps
@@ -408,7 +411,7 @@ classdef power < handle
 
                 % Overlay at the start the power scanimage thinks it is at each percentage
                 % laser power
-                SIpower_mW(ii) = obj.API.powerPercent2Watt(powerSeriesPercent(ii)/100)*1000;
+                SIpower_mW(ii) = obj.API.powerPercent2Watt(powerSeriesPercent(ii)/100, obj.beamIndex)*1000;
 
                 obj.H_observed.YData = observedPower_mW(:);
                 obj.H_meanVal.YData(ii) = mean(observedPower_mW(ii,:),2);
@@ -437,7 +440,9 @@ classdef power < handle
             obj.powerMeasurements.powerSeriesPercent = powerSeriesPercent;
             obj.powerMeasurements.currentTime = datestr(now,'yyyy-mm-dd_HH-MM-SS');
             obj.powerMeasurements.laserWavelength = obj.laserWavelength;
+            obj.powerMeasurements.beamIndex = obj.beamIndex;
             obj.powerMeasurements.fittedMinAndMax = [];
+            obj.powerMeasurements.sensorName = obj.powermeter.sensorName;
 
             % Updates obj.powerMeasurements.fittedMinAndMax
             obj.fitRawData
@@ -497,7 +502,7 @@ classdef power < handle
             end
 
             minMax_W = round(obj.powerMeasurements.fittedMinAndMax)/1000;
-            obj.API.setBeamMinMaxPowerInW(minMax_W);
+            obj.API.setBeamMinMaxPowerInW(minMax_W, obj.beamIndex);
         end % calibrateSI_Callback
 
 
