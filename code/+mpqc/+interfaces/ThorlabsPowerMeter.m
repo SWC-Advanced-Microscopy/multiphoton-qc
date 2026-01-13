@@ -1,7 +1,7 @@
 classdef ThorlabsPowerMeter < matlab.mixin.Copyable
     % ThorlabsPowerMeter Matlab class to control Thorlabs power meters
     %
-    %   Interface class for ThorLabs power meters. This is a 'wrapper' to control
+    %   aInterface class for ThorLabs power meters. This is a 'wrapper' to control
     %   Thorlabs devices via the Thorlabs .NET DLLs.
     %
     %   User Instructions:
