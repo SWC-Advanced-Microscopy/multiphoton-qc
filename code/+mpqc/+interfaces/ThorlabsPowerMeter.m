@@ -1,13 +1,19 @@
 classdef ThorlabsPowerMeter < matlab.mixin.Copyable
     % ThorlabsPowerMeter Matlab class to control Thorlabs power meters
     %
-    %   aInterface class for ThorLabs power meters. This is a 'wrapper' to control
+    %   Interface class for ThorLabs power meters. This is a 'wrapper' to control
     %   Thorlabs devices via the Thorlabs .NET DLLs.
     %
     %   User Instructions:
     %       1. Download the Optical Power Monitor from the Thorlabs website:
     %       https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=OPM
     %       [The latest version is 4.0.4100.700 - Accessed on 01 SEP 2022]
+    %       
+    %       !! This must be done prior to connecting the powermeter or
+    %       incorrect drivers are likely installed. If the code gives this error
+    %       "Device seems not to be connected: deviceNET property is empty"
+    %       incorrect driver is the likely cause. Disconnect powermeter, 
+    %       delete powermeter drivers, and reconnect powermeter to fix.
     %
     %       2. Read the manual in the installation folder or the sofware help page
     %       https://www.thorlabs.com/software/MUC/OPM/v3.0/TL_OPM_V3.0_web-secured.pdf
@@ -33,7 +39,7 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
     %   EXAMPLES
     %
     %   Connecting 01:
-    %   meter_list=ThorlabsPowerMeter;                              % Initiate the meter_list
+    %   meter_list=mpqc.interfaces.ThorlabsPowerMeter;              % Initiate the meter_list
     %   DeviceDescription=meter_list.listdevices;               	% List available device(s)
     %   test_meter=meter_list.connect(DeviceDescription);           % Connect single/the first devices
     %
