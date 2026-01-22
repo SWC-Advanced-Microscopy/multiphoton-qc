@@ -503,6 +503,7 @@ classdef power < handle
 
             minMax_W = round(obj.powerMeasurements.fittedMinAndMax)/1000;
             obj.API.setBeamMinMaxPowerInW(minMax_W, obj.beamIndex);
+            fprintf('Scanimage power calibrated to measured values\n')
         end % calibrateSI_Callback
 
 
