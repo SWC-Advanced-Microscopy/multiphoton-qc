@@ -594,7 +594,22 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
             end
         end
 
-
+        % LIKELY wrong
+        % function zeroSensor(obj)
+        % 
+        %     if ~obj.isDeviceNetConnected
+        %         return
+        %     end
+        %      if any(strcmp(obj.modelName,{'PM100D', 'PM100A', 'PM100USB', 'PM160T', 'PM200', 'PM400'}))
+        %         try
+        %              obj.deviceNET.startZeroPos
+        %         catch
+        %             warning('Operation not possible on this device');
+        %         end
+        %      end
+        % 
+        % 
+        % end
 
         function darkAdjust(obj)
             %DARKADJUST (PM400 Only) Initiate the Zero value measurement.
@@ -605,7 +620,7 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
                 return
             end
 
-            if any(strcmp(obj.modelName,'PM400'))
+            if any(strcmp(obj.modelName,'PM400')) || any(strcmp(obj.modelName,'PM100D'))
                 obj.deviceNET.startDarkAdjust;
                 [~,DarkState]=obj.deviceNET.getDarkAdjustState;
                 while DarkState
@@ -626,7 +641,7 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
                 return
             end
 
-            if any(strcmp(obj.modelName,'PM400'))
+            if any(strcmp(obj.modelName,'PM400'))||any(strcmp(obj.modelName,'PM100D'))
                 [~,DarkOffset_Voltage]=obj.deviceNET.getDarkOffset;
                 DarkOffset_Voltage_Unit='V';
                 obj.DarkOffset_Voltage=DarkOffset_Voltage;
