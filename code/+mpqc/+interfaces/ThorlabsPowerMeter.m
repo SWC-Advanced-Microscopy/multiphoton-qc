@@ -613,22 +613,27 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
 
         function darkAdjust(obj)
             %DARKADJUST (PM400 Only) Initiate the Zero value measurement.
+            % UPDATE: confirmed working on PM100D
             %   Usage: obj.darkAdjust;
             %   Start the measurement of Zero value.
 
             if ~obj.isDeviceNetConnected
                 return
             end
-
-            if any(strcmp(obj.modelName,'PM400')) || any(strcmp(obj.modelName,'PM100D'))
-                obj.deviceNET.startDarkAdjust;
+              obj.deviceNET.startDarkAdjust;
                 [~,DarkState]=obj.deviceNET.getDarkAdjustState;
                 while DarkState
                     [~,DarkState]=obj.deviceNET.getDarkAdjustState;
                 end
-            else
-                warning('This command is not supported on %s.',obj.modelName);
-            end
+            % if any(strcmp(obj.modelName,'PM400')) || any(strcmp(obj.modelName,'PM100D'))
+            %     obj.deviceNET.startDarkAdjust;
+            %     [~,DarkState]=obj.deviceNET.getDarkAdjustState;
+            %     while DarkState
+            %         [~,DarkState]=obj.deviceNET.getDarkAdjustState;
+            %     end
+            % else
+            %     warning('This command is not supported on %s.',obj.modelName);
+            % end
         end
 
         function [DarkOffset_Voltage,DarkOffset_Voltage_Unit]=getDarkOffset(obj)

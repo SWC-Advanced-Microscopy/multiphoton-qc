@@ -98,7 +98,6 @@ classdef power < handle
         settlingTime = 0.33;
 
         laserWavelength
-        zeroSensor
         beamIndex = 1;
 
         powerMeasurements %- a structure containing the recorded data with fields:
@@ -120,6 +119,7 @@ classdef power < handle
         hButton_data2base
         hButton_calibrateSI
         hButton_runPowerMeasure
+        hButton_zeroSensor
 
         % Plot elements in raw data plot
         H_observed
@@ -346,10 +346,10 @@ classdef power < handle
 
         end
 
-        function set.zeroSensor
+        function zeroSensor(obj,~,~)
             % Zeros the sensor
-            obj.powermeter.darkAdjust
-            fprintf('sensor zeroed')
+            obj.powermeter.darkAdjust()
+            fprintf('sensor zeroed\n')
 
         end
 
