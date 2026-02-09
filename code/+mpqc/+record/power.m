@@ -349,7 +349,7 @@ classdef power < handle
         function zeroSensor(obj,~,~)
             % Zeros the sensor
             obj.powermeter.darkAdjust()
-            fprintf('sensor zeroed\n')
+            fprintf('Sensor zeroed\n')
 
         end
 

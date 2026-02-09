@@ -41,10 +41,10 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
     %   Connecting 01:
     %   meter_list=mpqc.interfaces.ThorlabsPowerMeter;              % Initiate the meter_list
     %   DeviceDescription=meter_list.listdevices;               	% List available device(s)
-    %   test_meter=meter_list.connect(DeviceDescription);           % Connect single/the first devices
+    %   test_meter=meter_list.connect(1);                           % Connect single/the first devices
     %
     %   Connecting 02:
-    %   test_meter=meter_list.connect(DeviceDescription,1);         % Connect single/the first devices
+    %   test_meter=meter_list.connect(1);                           % Connect single/the first devices
     %   test_meter.setWaveLength(635);                              % Set sensor wavelength
     %   test_meter.setDispBrightness(0.3);                          % Set display brightness
     %   test_meter.setAttenuation(0);                               % Set Attenuation
@@ -204,7 +204,7 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
 
         end
 
-        function connect(obj,resource_index,ID_Query,Reset_Device)
+        function obj = connect(obj,resource_index,ID_Query,Reset_Device)
             %CONNECT Connect to the specified resource.
             %   Usage: obj.connect(resource);
             %   By default, it will connect to the first resource on the
