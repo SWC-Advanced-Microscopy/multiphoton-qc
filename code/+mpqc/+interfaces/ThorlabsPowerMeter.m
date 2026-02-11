@@ -620,14 +620,11 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
                 return
             end
 
-            if any(strcmp(obj.modelName,'PM400'))||any(strcmp(obj.modelName,'PM100D'))
-                [~,DarkOffset_Voltage]=obj.deviceNET.getDarkOffset;
-                DarkOffset_Voltage_Unit='V';
-                obj.DarkOffset_Voltage=DarkOffset_Voltage;
-                obj.DarkOffset_Voltage_Unit=DarkOffset_Voltage_Unit;
-            else
-                warning('This command is not supported on %s.',obj.modelName);
-            end
+            [~,DarkOffset_Voltage]=obj.deviceNET.getDarkOffset;
+            DarkOffset_Voltage_Unit='V';
+            obj.DarkOffset_Voltage=DarkOffset_Voltage;
+            obj.DarkOffset_Voltage_Unit=DarkOffset_Voltage_Unit;
+
         end
 
         function success = loaddlls(obj) % Load DLLs
