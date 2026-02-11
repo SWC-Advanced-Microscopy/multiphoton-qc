@@ -8,6 +8,12 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
     %       1. Download the Optical Power Monitor from the Thorlabs website:
     %       https://www.thorlabs.com/software_pages/ViewSoftwarePage.cfm?Code=OPM
     %       [The latest version is 4.0.4100.700 - Accessed on 01 SEP 2022]
+    %       
+    %       !! This must be done prior to connecting the powermeter or
+    %       incorrect drivers are likely installed. If the code gives this error
+    %       "Device seems not to be connected: deviceNET property is empty"
+    %       incorrect driver is the likely cause. Disconnect powermeter, 
+    %       delete powermeter drivers, and reconnect powermeter to fix.
     %
     %       2. Read the manual in the installation folder or the sofware help page
     %       https://www.thorlabs.com/software/MUC/OPM/v3.0/TL_OPM_V3.0_web-secured.pdf
@@ -33,12 +39,12 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
     %   EXAMPLES
     %
     %   Connecting 01:
-    %   meter_list=ThorlabsPowerMeter;                              % Initiate the meter_list
+    %   meter_list=mpqc.interfaces.ThorlabsPowerMeter;              % Initiate the meter_list
     %   DeviceDescription=meter_list.listdevices;               	% List available device(s)
-    %   test_meter=meter_list.connect(DeviceDescription);           % Connect single/the first devices
+    %   test_meter=meter_list.connect(1);                           % Connect single/the first devices
     %
     %   Connecting 02:
-    %   test_meter=meter_list.connect(DeviceDescription,1);         % Connect single/the first devices
+    %   test_meter=meter_list.connect(1);                           % Connect single/the first devices
     %   test_meter.setWaveLength(635);                              % Set sensor wavelength
     %   test_meter.setDispBrightness(0.3);                          % Set display brightness
     %   test_meter.setAttenuation(0);                               % Set Attenuation
@@ -179,7 +185,7 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
             end
 
             % Read the sensor head information
-            obj.sensorInfo
+            obj.sensorInfo;
         end
 
         function delete(obj)
@@ -198,7 +204,7 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
 
         end
 
-        function connect(obj,resource_index,ID_Query,Reset_Device)
+        function obj = connect(obj,resource_index,ID_Query,Reset_Device)
             %CONNECT Connect to the specified resource.
             %   Usage: obj.connect(resource);
             %   By default, it will connect to the first resource on the
@@ -588,26 +594,20 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
             end
         end
 
-
-
         function darkAdjust(obj)
             %DARKADJUST (PM400 Only) Initiate the Zero value measurement.
+            % UPDATE: confirmed working on PM100D
             %   Usage: obj.darkAdjust;
             %   Start the measurement of Zero value.
 
             if ~obj.isDeviceNetConnected
                 return
             end
-
-            if any(strcmp(obj.modelName,'PM400'))
-                obj.deviceNET.startDarkAdjust;
+              obj.deviceNET.startDarkAdjust;
                 [~,DarkState]=obj.deviceNET.getDarkAdjustState;
                 while DarkState
                     [~,DarkState]=obj.deviceNET.getDarkAdjustState;
                 end
-            else
-                warning('This command is not supported on %s.',obj.modelName);
-            end
         end
 
         function [DarkOffset_Voltage,DarkOffset_Voltage_Unit]=getDarkOffset(obj)
@@ -620,14 +620,11 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
                 return
             end
 
-            if any(strcmp(obj.modelName,'PM400'))
-                [~,DarkOffset_Voltage]=obj.deviceNET.getDarkOffset;
-                DarkOffset_Voltage_Unit='V';
-                obj.DarkOffset_Voltage=DarkOffset_Voltage;
-                obj.DarkOffset_Voltage_Unit=DarkOffset_Voltage_Unit;
-            else
-                warning('This command is not supported on %s.',obj.modelName);
-            end
+            [~,DarkOffset_Voltage]=obj.deviceNET.getDarkOffset;
+            DarkOffset_Voltage_Unit='V';
+            obj.DarkOffset_Voltage=DarkOffset_Voltage;
+            obj.DarkOffset_Voltage_Unit=DarkOffset_Voltage_Unit;
+
         end
 
         function success = loaddlls(obj) % Load DLLs
