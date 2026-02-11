@@ -185,7 +185,7 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
             end
 
             % Read the sensor head information
-            obj.sensorInfo
+            obj.sensorInfo;
         end
 
         function delete(obj)
