@@ -2,7 +2,8 @@ function varargout = long_electrical_noise(data_dir,varargin)
 % Longitudinal electrical noise plots showing FWHM and max values over time
 %
 % mpqc.longitudinal.long_electrical_noise(maintenace_folder_path, varargin)
-% Optional inputs: Starting date- month-year
+% Optional inputs: Starting date- year-month-day
+% mpqc.longitudinal.long_electrical_noise(maintenace_folder_path, '2024-06-01')
 %
 % Purpose
 % Plots of the maximum value and FWHM of electrical noise for each channel
@@ -25,7 +26,7 @@ if nargin<1
 end
 
 
-debugPlots = true;
+debugPlots = false;
 
 maintenanceFiles = dir(fullfile(data_dir,'\**\*.tif')); 
 n=1;
