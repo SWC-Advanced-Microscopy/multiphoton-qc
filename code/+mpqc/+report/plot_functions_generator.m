@@ -60,6 +60,11 @@ for ii=1:length(d)
             out(n).type = 'standard_source';
             out(n).plotting_func = @mpqc.plot.standard_light_source;
             n=n+1;
+        elseif contains(tmp.name,'power_')
+            out(n) = generic_generator_template(tmp);
+            out(n).type = 'power';
+            out(n).plotting_func = @mpqc.plot.power;
+            n=n+1;
         end
     end
 end
