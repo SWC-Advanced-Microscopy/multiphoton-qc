@@ -1,4 +1,4 @@
-function [OUT,data] = get_quantalsize_quantalsize_from_file(fname,count_weight_gamma)
+function [OUT,data] = get_quantalsize_quantalsize_from_file(fname,count_weight_gamma,min_count_proportion,clip_thresh)
 	% Get the quantal size and associated statistics from a file
 	%
 	% function OUT = mpqc.analyse.get_quantalsize_quantalsize_from_file(fname,count_weight_gamma)
@@ -13,6 +13,8 @@ function [OUT,data] = get_quantalsize_quantalsize_from_file(fname,count_weight_g
 	% Inputs
 	% fname - relate or absolute path to a file
 	% count_weight_gamma - see help of  mpqc.analyse.compute_quantalsize
+	% min_count_proportion - see help of  mpqc.analyse.compute_quantalsize
+	% clip_thresh - see help of  mpqc.analyse.compute_quantalsize
 	%
 	% Output
 	% Structure with extensive data on the recording and also the quantal size and offset.
@@ -34,6 +36,15 @@ function [OUT,data] = get_quantalsize_quantalsize_from_file(fname,count_weight_g
 		count_weight_gamma = [];
 	end
 
+	if nargin<3
+		min_count_proportion = [];
+	end
+
+	if nargin<4
+		clip_thresh = [];
+	end
+
+
 	if ~exist(fname,'file')
 		fprintf('Can not find file %s\n',fname)
 		return
@@ -50,7 +61,10 @@ function [OUT,data] = get_quantalsize_quantalsize_from_file(fname,count_weight_g
 	for ii=1:nChans
 		% Run the analysis
 		tChan = im(:,:,ii:nChans:end);
-		[OUT(ii),data(ii)] = mpqc.analyse.compute_quantalsize(tChan,count_weight_gamma);
+		[OUT(ii),data(ii)] = mpqc.analyse.compute_quantalsize(tChan, ...
+				count_weight_gamma, ...
+				min_count_proportion, ...
+				clip_thresh);
 
 		% Fill in extra metadata
 		OUT(ii).channel = metadata.channelSave(ii);

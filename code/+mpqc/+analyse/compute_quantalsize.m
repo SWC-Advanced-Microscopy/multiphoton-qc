@@ -1,4 +1,4 @@
-function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, min_count_proportion)
+function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, min_count_proportion, clip_thresh)
     % Compute photon quantal_size
     %
     % function result = mpqc.analyse.compute_quantalsize(frames, count_weight_gamma, min_count_proportion)
@@ -36,6 +36,10 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
     %     used for the fit will never be less than 7% of the maximum value used. If you see
     %     a peculiar shape in the distribution for low values with plotPhotonFit and this is
     %     throwing off the fit, you can increase the magnitude of this parameter.
+    %  clip_thresh: 1 by default. If, say, 0.99, then values over 0.99 (the top 1%) are
+    %            removed from the mean/variance curve. Used for cases when there is a strong
+    %            deviation in the bright values. Tends to be seen in bright static samples.
+    %            The default of 1 means there is are no samples removed by default.
     %
     %
     % Outputs
@@ -88,12 +92,16 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
         min_count_proportion = 0.05;
     end
 
+    if nargin<4 || isempty(clip_thresh)
+        clip_thresh = 1;
+    end
+
     assert(ndims(frames) == 3, 'Input variable "frames" must have three dimensions.')
 
     %assert(count_weight_gamma>=0 && count_weight_gamma<=1, ...
     %    'count_weight_gamma should be between 0 and 1')
 
-    % Esnure all values are positive
+    % Ensure all values are positive
     min_pix_val = min(frames(:));
     frames = frames - min_pix_val;
 
@@ -108,6 +116,15 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
     % Replace all numbers lower than 0 with 0.
     frames = double(max(0, frames));
 
+    % Calculate a clipping value if this was requested
+    if clip_thresh<1
+        mu = single(mean(frames,3));
+        [n,x] = hist(mu(:));
+        c = cumsum(n)/sum(n);
+        f=find(c>clip_thresh);
+        clip_abs_thresh = x(f(1));
+
+    end
 
     % "intensity" will be used to determine mean values and "difference" will be
     % used to calculate the variance.
@@ -117,6 +134,13 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
      % Convert to vectors
     intensity = intensity(:);
     difference = difference(:);
+
+    if clip_thresh<1
+        f=find(intensity>clip_abs_thresh);
+        intensity(f)=[];
+        difference(f)=[];
+    end
+
 
     % Determine the number of counts at each raw value
     % (histcounts) generates artifacts: do not use
@@ -145,7 +169,9 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
 
     % Calculate the variance of each count value
     idx = (intensity >= ind_start) & (intensity < ind_stop);
-    variance = accumarray(intensity(idx) - ind_start + 1, (difference(idx) .^ 2) / 2, [length(counts), 1]) ./ counts;
+    variance = accumarray(intensity(idx) - ind_start + 1, ...
+                        (difference(idx) .^ 2) / 2, ...
+                        [length(counts), 1]) ./ counts;
 
 
 
@@ -194,6 +220,7 @@ function [result,dataForFit] = compute_quantalsize(frames, count_weight_gamma, m
         'model', coefs, ...
         'count_weight_gamma', count_weight_gamma, ...
         'min_count_proportion', min_count_proportion, ...
+        'clip_thresh', clip_thresh, ...
         'weighted_fit', weightedFit, ...
         'counts', counts, ...
         'min_intensity', ind_start, ...
