@@ -603,11 +603,11 @@ classdef ThorlabsPowerMeter < matlab.mixin.Copyable
             if ~obj.isDeviceNetConnected
                 return
             end
-              obj.deviceNET.startDarkAdjust;
+            obj.deviceNET.startDarkAdjust;
+            [~,DarkState]=obj.deviceNET.getDarkAdjustState;
+            while DarkState
                 [~,DarkState]=obj.deviceNET.getDarkAdjustState;
-                while DarkState
-                    [~,DarkState]=obj.deviceNET.getDarkAdjustState;
-                end
+            end
         end
 
         function [DarkOffset_Voltage,DarkOffset_Voltage_Unit]=getDarkOffset(obj)
