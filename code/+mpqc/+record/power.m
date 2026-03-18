@@ -570,9 +570,15 @@ classdef power < handle
 
         function windowCloseFcn(obj,~,~)
             % This runs when the user closes the figure window.
-
-            obj.delete % simply call the destructor
-        end %close windowCloseFcn
+            selection = uiconfirm(obj,"Do you want to save data?", "Save data");
+            switch selection
+                case "Save"
+                    saveData(obj,~,~)
+                    obj.delete % simply call the destructor
+                case "Close without saving"
+                    obj.delete % simply call the destructor
+            end %close windowCloseFcn
+        end
 
     end % hidden methods
 
