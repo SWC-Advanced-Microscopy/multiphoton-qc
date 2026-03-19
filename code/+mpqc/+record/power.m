@@ -107,6 +107,8 @@ classdef power < handle
         %   .laserWavelength
         %   .fittedMinAndMax
 
+        wasSaved = false;
+
     end % properties
 
     properties (Hidden)
@@ -467,6 +469,7 @@ classdef power < handle
 
             obj.enableButtons;
 
+            obj.wasSaved = false;
         end % recordPowerCurve
 
 
@@ -501,6 +504,7 @@ classdef power < handle
 
             % Report where the file was saved
             mpqc.tools.reportFileSaveLocation(saveDir,fileName)
+            obj.wasSaved = true;
         end % saveData_Callback
 
 
@@ -569,25 +573,20 @@ classdef power < handle
         end % disableButtons
 
         function windowCloseFcn(obj,~,~)
-            saveBox = questdlg('Do you want to save data?', 'Save Data', 'Save','Close without saving','Save')
-            switch saveBox
-                case 'Save'
-                    disp('Saved')
-                    obj.delete % simply call the destructor
-                case 'Close without saving'
-                    disp('Not saved')
-                    obj.delete % simply call the destructor
+            if obj.wasSaved == false
+                saveBox = questdlg('Do you want to save data?', 'Save Data', 'Save','Close without saving','Save');
+                switch saveBox
+                    case 'Save'
+                        obj.saveData
+                        disp('Saved')
+                        obj.delete % simply call the destructor
+                    case 'Close without saving'
+                        disp('Not saved')
+                        obj.delete % simply call the destructor
+                end
+            else
+                obj.delete % simply call the destructor
             end
-            % This runs when the user closes the figure window.
-            % selection = uiconfirm(obj,"Do you want to save data?", "Save data");
-            % switch selection
-            %     case "Save"
-            %         saveData(obj,~,~)
-            %         obj.delete % simply call the destructor
-            %     case "Close without saving"
-            %         obj.delete % simply call the destructor
-            % end %close windowCloseFcn
-            % obj.delete % simply call the destructor
         end
 
     end % hidden methods
