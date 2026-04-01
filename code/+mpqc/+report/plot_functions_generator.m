@@ -55,9 +55,9 @@ for ii=1:length(d)
             out(n).type = 'lens_paper';
             out(n).plotting_func = @mpqc.plot.lens_paper;
             n=n+1;
-        elseif contains(tmp.name,'standard_source')
+        elseif contains(tmp.name,'standard_light_source')
             out(n) = generic_generator_template(tmp);
-            out(n).type = 'standard_source';
+            out(n).type = 'standard_light_source';
             out(n).plotting_func = @mpqc.plot.standard_light_source;
             n=n+1;
         elseif contains(tmp.name,'power_')
