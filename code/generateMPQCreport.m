@@ -58,7 +58,7 @@ function varargout=generateMPQCreport(data_dir)
 
     %% Intro to the report by summarizing whatever information we can automatically generate
     chapter = Chapter('Title', 'Introduction');
-    p1 = Paragraph(mpqc.report.generate_summary_text);
+    p1 = Paragraph(mpqc.report.generate_summary_text(data_dir));
 
 
     add(chapter,p1)
