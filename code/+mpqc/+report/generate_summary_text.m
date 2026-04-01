@@ -25,7 +25,7 @@ end
 % Load an image extract from it information about the microscope.
 d = mpqc.report.getScanImageTifNames(data_dir);
 
-header = sibridge.readTifHeader(fullfile(d(1).folder,d(1).name));
+header = sibridge.readTifHeader(fullfile(d(1).folder,d(1).name)); % NOT Robust - if user has saved other tests that come aplphabetically first, it does not work
 
 scanimageVersion = sprintf('%d.%d.%d', header.VERSION_MAJOR, ...
                                        header.VERSION_MINOR, ...

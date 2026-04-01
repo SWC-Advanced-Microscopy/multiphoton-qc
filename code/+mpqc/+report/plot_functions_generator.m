@@ -34,7 +34,7 @@ d = dir(data_dir);
 n=1;
 for ii=1:length(d)
     tmp = d(ii);
-    if contains(tmp.name,'.tif')
+    if contains(tmp.name,'.tif') || contains(tmp.name,'.mat')
         if contains(tmp.name,'electrical_noise')
             out(n) = generic_generator_template(tmp);
             out(n).type = 'electrical_noise';
@@ -60,7 +60,7 @@ for ii=1:length(d)
             out(n).type = 'standard_light_source';
             out(n).plotting_func = @mpqc.plot.standard_light_source;
             n=n+1;
-        elseif contains(tmp.name,'power_')
+        elseif contains(tmp.name,'power_calib')
             out(n) = generic_generator_template(tmp);
             out(n).type = 'power';
             out(n).plotting_func = @mpqc.plot.power;
