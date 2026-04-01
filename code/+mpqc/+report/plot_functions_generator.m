@@ -70,8 +70,8 @@ for ii=1:length(d)
 end
 
 % If the user has acquired PSFs but not selected beads and saved the results, we warn them.
-PSF_files = dir('PSF_*');
-bead_files = dir('Bead_PSF_*.fig');
+PSF_files = dir(fullfile(data_dir,'PSF_*'));
+bead_files = dir(fullfile(data_dir,'Bead_PSF_*.fig'));
 
 if ~isempty(PSF_files)>0 && isempty(bead_files)
     fprintf('\nYou have acquired PSF data but not selected any beads and saved the images.\n')
