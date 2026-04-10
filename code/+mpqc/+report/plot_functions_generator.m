@@ -32,6 +32,7 @@ d = dir(data_dir);
 
 
 n=1;
+standard_light_done = false;
 for ii=1:length(d)
     tmp = d(ii);
     if contains(tmp.name,'.tif') || contains(tmp.name,'.mat')
@@ -55,11 +56,13 @@ for ii=1:length(d)
             out(n).type = 'lens_paper';
             out(n).plotting_func = @mpqc.plot.lens_paper;
             n=n+1;
-        elseif contains(tmp.name,'standard_light_source')
+        elseif contains(tmp.name,'standard_light_source') && ~standard_light_done
             out(n) = generic_generator_template(tmp);
             out(n).type = 'standard_light_source';
             out(n).plotting_func = @mpqc.plot.standard_light_source;
+            out(n).data_dir = d(ii).folder;
             n=n+1;
+            standard_light_done = true;
         elseif contains(tmp.name,'power_calib')
             out(n) = generic_generator_template(tmp);
             out(n).type = 'power';
@@ -103,4 +106,5 @@ function out = generic_generator_template(t_dir)
     out.plotting_func = [];
     out.laser_wavelength = mpqc.report.laser_wavelength_from_fname(t_dir.name); %get laser wavelength
     out.laser_power = mpqc.report.laser_power_from_fname(t_dir.name); %get laser power
+    out.data_dir = []; %for standard light source
 

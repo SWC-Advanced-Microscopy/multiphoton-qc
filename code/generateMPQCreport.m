@@ -88,12 +88,12 @@ function varargout=generateMPQCreport(data_dir)
 
 
     %% Standard light source
-    f=find(strcmp({GEN.type},'standard_source'));
+    f=find(strcmp({GEN.type},'standard_light_source'));
     if ~isempty(f)
         chapter = Chapter('Title', 'Response to standard light source');
 
         for ii=1:length(f)
-            GEN(f(ii)).plotting_func(GEN(f(ii)).full_path_to_data)
+            GEN(f(ii)).plotting_func(GEN(f(ii)).data_dir)
 
             fig = Figure();
 
