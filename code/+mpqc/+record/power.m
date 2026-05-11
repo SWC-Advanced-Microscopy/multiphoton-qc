@@ -575,20 +575,13 @@ classdef power < handle
         function windowCloseFcn(obj,~,~)
             if obj.wasSaved == false
                 saveBox = questdlg('Do you want to save data?', 'Save Data', 'Save','Close without saving','Save');
-                switch saveBox
-                    case 'Save'
-                        obj.saveData
-                        disp('Saved')
-                        obj.delete % simply call the destructor
-                    case 'Close without saving'
-                        disp('Not saved')
-                        obj.delete % simply call the destructor
+                if strcmp(saveBox,'Save')
+                    obj.saveData
+                    disp('Saved')
                 end
-            else
-                obj.delete % simply call the destructor
             end
+            obj.delete % Close the GUI and tidy up
         end
-
     end % hidden methods
 
 end % classdef
