@@ -40,6 +40,7 @@ function settings = recordScanImageSettings(API)
 
     settings.loggingEnabled = API.hSI.hChannels.loggingEnable;
     settings.logAveFact = API.hSI.hScan2D.logAverageFactor;
+    settings.bidirectional = API.hSI.hScan2D.bidirectional;
     settings.framesPerSlice = API.hSI.hStackManager.framesPerSlice;
     settings.acqsPerLoop = API.hSI.acqsPerLoop;
 

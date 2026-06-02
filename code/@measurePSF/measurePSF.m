@@ -177,6 +177,22 @@ classdef measurePSF < handle
     methods
         function obj=measurePSF(inputPSFstack,varargin)
 
+            % Check if required toolboxes are installed
+            toolboxesPresent = true;
+            toolboxesToTest = {'Image Processing Toolbox','Curve Fitting Toolbox'};
+            for ii = 1:length(toolboxesToTest)
+                if ~contains(struct2array(ver),toolboxesToTest{ii})
+                    fprintf('** measurePSF requires %s **\n', toolboxesToTest{ii})
+                    toolboxesPresent = false;
+                end
+            end
+
+            % Bail out if required toolbox not present (message to user supplied above)
+            if toolboxesPresent == false
+                return
+            end
+
+
             % If no input arguments are provided, we bring up the load GUI
             if nargin==0
                 [fname, pname]=uigetfile({'*.tif';'*.tiff'},'Select PSF stack','MultiSelect','off');

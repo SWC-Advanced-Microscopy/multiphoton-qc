@@ -104,6 +104,7 @@ function varargout = PSF(varargin)
 
         API.hSI.hStackManager.framesPerSlice = framesToAverage;
         API.hSI.hScan2D.logAverageFactor = framesToAverage;
+        API.hSI.hScan2D.bidirectional = 0; % disable bidi to avoid bidi artifacts in bead stacks
 
         API.hSI.hDisplay.volumeDisplayStyle='Current';
     catch ME

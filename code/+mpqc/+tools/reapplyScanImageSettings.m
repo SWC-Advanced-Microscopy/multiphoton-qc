@@ -50,6 +50,7 @@ function settings = reapplyScanImageSettings(API,settings,verbose)
 
     API.hSI.hChannels.loggingEnable = settings.loggingEnabled;
     API.hSI.hScan2D.logAverageFactor = settings.logAveFact;
+    API.hSI.hScan2D.bidirectional = settings.bidirectional;
     API.hSI.hStackManager.framesPerSlice = settings.framesPerSlice;
     API.hSI.acqsPerLoop = settings.acqsPerLoop;
 

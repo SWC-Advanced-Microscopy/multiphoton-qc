@@ -45,14 +45,14 @@ function [settings,setTests] = default_settings
     setTests.objective.name = {@check_ischar};
 
     settings.objective.serialNumber = 'NONE';
-    setTests.objective.serialNumber = {@check_isscalar};
+    setTests.objective.serialNumber = {}; % No test
 
 
     % PMTs
     settings.PMT_1.model = 'Hamamatsu ...';
     setTests.PMT_1.model = {@check_ischar};
     settings.PMT_1.serialNumber = 'XXXXX';
-    setTests.PMT_1.serialNumber = {@check_isscalar};
+    setTests.PMT_1.serialNumber = {};
     settings.PMT_1.microscopeChannelName = 'Chan 1 Green USER MUST FILL IN';
     setTests.PMT_1.microscopeChannelName = {@check_ischar};
     settings.PMT_1.bandPassFilter = 'EZ238 FILL IN';
@@ -61,7 +61,7 @@ function [settings,setTests] = default_settings
     settings.PMT_2.model = [];
     setTests.PMT_2.model = {@check_ischar};
     settings.PMT_2.serialNumber = [];
-    setTests.PMT_2.serialNumber = {@check_isscalar};
+    setTests.PMT_2.serialNumber = {};
     settings.PMT_2.microscopeChannelName = [];
     setTests.PMT_2.microscopeChannelName = {@check_ischar};
     settings.PMT_2.bandPassFilter = '';
@@ -71,7 +71,7 @@ function [settings,setTests] = default_settings
     settings.PMT_3.model = [];
     setTests.PMT_3.model = {@check_ischar};
     settings.PMT_3.serialNumber = [];
-    setTests.PMT_3.serialNumber = {@check_isscalar};
+    setTests.PMT_3.serialNumber = {};
     settings.PMT_3.microscopeChannelName = [];
     setTests.PMT_3.microscopeChannelName = {@check_ischar};
     settings.PMT_3.bandPassFilter = '';
@@ -81,7 +81,7 @@ function [settings,setTests] = default_settings
     settings.PMT_4.model = '';
     setTests.PMT_4.model = {@check_ischar};
     settings.PMT_4.serialNumber = '';
-    setTests.PMT_4.serialNumber = {@check_isscalar};
+    setTests.PMT_4.serialNumber = {};
     settings.PMT_4.microscopeChannelName = '';
     setTests.PMT_4.microscopeChannelName = {@check_ischar};
     settings.PMT_4.bandPassFilter = '';
@@ -92,17 +92,17 @@ function [settings,setTests] = default_settings
     settings.imagingLaser_1.model = 'Spectra Physics FILL IN';
     setTests.imagingLaser_1.model = {@check_ischar};
     settings.imagingLaser_1.serialNumber = '12345 FILL IN';
-    setTests.imagingLaser_1.serialNumber = {@check_isscalar};
+    setTests.imagingLaser_1.serialNumber = {};
 
     settings.imagingLaser_2.model = '';
     setTests.imagingLaser_2.model = {@check_ischar};
     settings.imagingLaser_2.serialNumber = '';
-    setTests.imagingLaser_2.serialNumber = {@check_isscalar};
+    setTests.imagingLaser_2.serialNumber = {};
 
     settings.imagingLaser_3.model = '';
     setTests.imagingLaser_3.model = {@check_ischar};
     settings.imagingLaser_3.serialNumber = '';
-    setTests.imagingLaser_3.serialNumber = {@check_isscalar};
+    setTests.imagingLaser_3.serialNumber = {};
 
     %% QC tools
     settings.QC.sourceIDs={};
