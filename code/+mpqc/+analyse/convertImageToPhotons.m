@@ -1,5 +1,5 @@
 function im_p = convertImageToPhotons(im,STATS)
-    % Convert image im to photons using coefficinets in STATS
+    % Convert image im to photons using coefficients in STATS
     %
     % im_p = mpqc.analyse convertImageToPhotons(im,STATS)
     %

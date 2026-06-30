@@ -16,7 +16,7 @@ function plotPhotonFit(STATS)
 %
 %
 % Example
-% OUT = mpqc.tools_get_quantal_size_from_file(fname);
+% OUT = mpqc.analyse.get_quantal_size_from_file(fname);
 % mpqc.analyse.plotPhotonFit(OUT)
 %
 %
@@ -65,7 +65,7 @@ grid on
 axis tight
 % Add some key statistics to the plot title
 title(sprintf('Quantal size: %0.1f. Mean photons per pixel: %0.2f', ...
-    STATS.quantal_size, STATS.photons_per_pixel))
+    STATS.quantal_size, STATS.mean_photons_per_pixel))
 
 
 ax2=subplot(2,3,4);
@@ -79,11 +79,16 @@ box on
 axis tight
 % Add some key statistics to the plot title
 title(sprintf('Quantal size: %0.1f. Mean photons per pixel: %0.2f', ...
-    STATS.quantal_size, STATS.photons_per_pixel))
+    STATS.quantal_size, STATS.mean_photons_per_pixel))
 
 
 %%
-% The converted image
+% The converted image (if enough information is provided for this)
+if ~exist(fname,'file')
+    fprintf('No file name information provided. Not converting to photons\n')
+    fprintf('Use mpqc.analyse.get_quantal_size_from_file(fname) for this\n')
+    return
+end
 subplot(2,3,[2,5])
 [imStack,metadata]=mpqc.tools.scanImage_stackLoad(fname,false); %Do not subtract the offset
 

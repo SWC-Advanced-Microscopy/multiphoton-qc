@@ -107,6 +107,8 @@ classdef power < handle
         %   .laserWavelength
         %   .fittedMinAndMax
 
+        wasSaved = false;
+
     end % properties
 
     properties (Hidden)
@@ -185,7 +187,7 @@ classdef power < handle
 
             obj.makeFigWindow
             obj.laserWavelength=out.wavelength; % here since it triggers a figure reset
-            obj.beamIndex=out.beamIndex;
+            obj.beamIndex=1; %  TODO -- hard-coded for now. OK if system has only one beam
 
         end % constructor
 
@@ -403,7 +405,7 @@ classdef power < handle
             obj.hAxPower.XLabel.String = 'Percent Power';
 
             % Set Y axis limits to reasonable values from the start
-            obj.hAxPower.YLim = [0, obj.API.powerPercent2Watt(1)*1200];
+            obj.hAxPower.YLim = [0, obj.API.powerPercent2Watt(1)*1200]; %max power times 1.2
             obj.hAxPower.XLim = [0,105];
 
             obj.API.turnOffAllPMTs
@@ -469,6 +471,7 @@ classdef power < handle
 
             obj.enableButtons;
 
+            obj.wasSaved = false;
         end % recordPowerCurve
 
 
@@ -503,6 +506,7 @@ classdef power < handle
 
             % Report where the file was saved
             mpqc.tools.reportFileSaveLocation(saveDir,fileName)
+            obj.wasSaved = true;
         end % saveData_Callback
 
 
@@ -571,11 +575,15 @@ classdef power < handle
         end % disableButtons
 
         function windowCloseFcn(obj,~,~)
-            % This runs when the user closes the figure window.
-
-            obj.delete % simply call the destructor
-        end %close windowCloseFcn
-
+            if obj.wasSaved == false
+                saveBox = questdlg('Do you want to save data?', 'Save Data', 'Save','Close without saving','Save');
+                if strcmp(saveBox,'Save')
+                    obj.saveData
+                    disp('Saved')
+                end
+            end
+            obj.delete % Close the GUI and tidy up
+        end
     end % hidden methods
 
 end % classdef

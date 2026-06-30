@@ -32,9 +32,10 @@ d = dir(data_dir);
 
 
 n=1;
+standard_light_done = false;
 for ii=1:length(d)
     tmp = d(ii);
-    if contains(tmp.name,'.tif')
+    if contains(tmp.name,'.tif') || contains(tmp.name,'.mat')
         if contains(tmp.name,'electrical_noise')
             out(n) = generic_generator_template(tmp);
             out(n).type = 'electrical_noise';
@@ -55,18 +56,25 @@ for ii=1:length(d)
             out(n).type = 'lens_paper';
             out(n).plotting_func = @mpqc.plot.lens_paper;
             n=n+1;
-        elseif contains(tmp.name,'standard_source')
+        elseif contains(tmp.name,'standard_light_source') && ~standard_light_done
             out(n) = generic_generator_template(tmp);
-            out(n).type = 'standard_source';
+            out(n).type = 'standard_light_source';
             out(n).plotting_func = @mpqc.plot.standard_light_source;
+            out(n).data_dir = d(ii).folder;
+            n=n+1;
+            standard_light_done = true;
+        elseif contains(tmp.name,'power_calib')
+            out(n) = generic_generator_template(tmp);
+            out(n).type = 'power';
+            out(n).plotting_func = @mpqc.plot.power;
             n=n+1;
         end
     end
 end
 
 % If the user has acquired PSFs but not selected beads and saved the results, we warn them.
-PSF_files = dir('PSF_*');
-bead_files = dir('Bead_PSF_*.fig');
+PSF_files = dir(fullfile(data_dir,'PSF_*'));
+bead_files = dir(fullfile(data_dir,'Bead_PSF_*.fig'));
 
 if ~isempty(PSF_files)>0 && isempty(bead_files)
     fprintf('\nYou have acquired PSF data but not selected any beads and saved the images.\n')
@@ -98,4 +106,5 @@ function out = generic_generator_template(t_dir)
     out.plotting_func = [];
     out.laser_wavelength = mpqc.report.laser_wavelength_from_fname(t_dir.name); %get laser wavelength
     out.laser_power = mpqc.report.laser_power_from_fname(t_dir.name); %get laser power
+    out.data_dir = []; %for standard light source
 

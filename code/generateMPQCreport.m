@@ -58,7 +58,7 @@ function varargout=generateMPQCreport(data_dir)
 
     %% Intro to the report by summarizing whatever information we can automatically generate
     chapter = Chapter('Title', 'Introduction');
-    p1 = Paragraph(mpqc.report.generate_summary_text);
+    p1 = Paragraph(mpqc.report.generate_summary_text(data_dir));
 
 
     add(chapter,p1)
@@ -88,12 +88,12 @@ function varargout=generateMPQCreport(data_dir)
 
 
     %% Standard light source
-    f=find(strcmp({GEN.type},'standard_source'));
+    f=find(strcmp({GEN.type},'standard_light_source'));
     if ~isempty(f)
         chapter = Chapter('Title', 'Response to standard light source');
 
         for ii=1:length(f)
-            GEN(f(ii)).plotting_func(GEN(f(ii)).full_path_to_data)
+            GEN(f(ii)).plotting_func(GEN(f(ii)).data_dir)
 
             fig = Figure();
 
@@ -201,6 +201,24 @@ function varargout=generateMPQCreport(data_dir)
         add(rpt, chapter);
     end
 
+    %% Power curve
+    f=find(strcmp({GEN.type},'power'));
+    if ~isempty(f)
+        chapter = Chapter('Title', 'Power intensity');
+
+        for ii=1:length(f)
+            GEN(f(ii)).plotting_func(GEN(f(ii)).full_path_to_data);
+            fig = Figure();
+
+            figImg = Image(getSnapshotImage(fig, rpt));
+            figImg.Style = imgStyle;
+            delete(gcf);
+
+            add(chapter, figImg);
+        end
+
+        add(rpt, chapter);
+    end
 
 
     close(rpt);

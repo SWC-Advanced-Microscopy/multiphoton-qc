@@ -130,6 +130,11 @@ function varargout = findSettingsFile
     end
 
 
+    % Just print to screen if no output args are specified.
+    if nargout==0
+        fprintf('%s\n', settingsFilePath)
+        return
+    end
 
     if nargout>0
         varargout{1} = settingsFilePath;

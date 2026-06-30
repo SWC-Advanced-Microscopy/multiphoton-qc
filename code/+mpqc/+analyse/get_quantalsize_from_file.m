@@ -61,10 +61,17 @@ function [OUT,data] = get_quantalsize_quantalsize_from_file(fname,count_weight_g
 	for ii=1:nChans
 		% Run the analysis
 		tChan = im(:,:,ii:nChans:end);
-		[OUT(ii),data(ii)] = mpqc.analyse.compute_quantalsize(tChan, ...
+
+		try
+			[OUT(ii),data(ii)] = mpqc.analyse.compute_quantalsize(tChan, ...
 				count_weight_gamma, ...
 				min_count_proportion, ...
 				clip_thresh);
+		catch ME
+			fprintf('Analysis of channel %d failed\n', ii)
+			disp(ME.message)
+		end
+
 
 		% Fill in extra metadata
 		OUT(ii).channel = metadata.channelSave(ii);

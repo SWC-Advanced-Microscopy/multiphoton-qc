@@ -69,8 +69,8 @@ function lens_paper(varargin)
     end
 
     numGains = [];
-    if isfield(out,'mumGains')
-        mumGains = out.mumGains;
+    if isfield(out,'numGains')
+        numGains = out.numGains;
     end
 
     % Connect to ScanImage using the linker class
