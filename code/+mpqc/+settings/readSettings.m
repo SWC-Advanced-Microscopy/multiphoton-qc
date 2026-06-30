@@ -7,9 +7,9 @@ function reformattedSettings = readSettings(fname)
     % This function parses the MPQC settings file and creates it if does not already exist.
     %
     % If no settings have been created then a default settings file is created. The user is
-    % prompted to edit it and nothing is returned. If a settings file is present and looks
-    % identical to the default one, the user is prompted to edit it and nothing is returned.
-    % Otherwise the settings file is read and returned as a structure.
+    % prompted to edit it and nothing is returned. If a settings file is present and contains
+    % the default string "ENTER_" in any of the values, the user is prompted to edit it and
+    % nothing is returned. Otherwise the settings file is read and returned as a structure.
     %
     % Inputs
     % fname - [optional] If not provided, the default settings file is found and loaded. If
@@ -53,26 +53,42 @@ function reformattedSettings = readSettings(fname)
         return
     end
 
-
-    settingsFromYML = mpqc.yaml.ReadYaml(settingsFile);
+    try
+        settingsFromYML = mpqc.yaml.ReadYaml(settingsFile);
+    catch ME
+        baseME = MException('mpqc:settings:cannotParseSettings', ...
+            ['The settings file could not be read because it is not valid YAML:\n' ...
+             '  %s\n\n' ...
+             'Open it and fix the formatting (watch for tabs and missing colons), ' ...
+             'or delete the file to regenerate a fresh default.\n' ...
+             'Underlying error: %s'], settingsFile, ME.message);
+        throw(baseME)
+    end
 
     %Check if the loaded settings are the same as the default settings
     DEFAULT_SETTINGS = mpqc.settings.default_settings;
 
-    % TODO -- does this ever run? Can we delete it?
-    if isequal(settingsFromYML,DEFAULT_SETTINGS)
-        fprintf(['\n\n *** The settings file at %s has never been edited\n ', ...
-            '*** Press RETURN then edit the file for your system.\n'], settingsFile)
+    % Check if there are default (unconfigured) fields in the structure
+    unconfigured = {};
+    f0 = fields(settingsFromYML);
+    for ii = 1:length(f0)
+        f1 = fields(settingsFromYML.(f0{ii}));
 
-        pause
+        for jj = 1:length(f1)
+            curVal = settingsFromYML.(f0{ii}).(f1{jj});
 
-        edit(settingsFile)
-        fprintf('\n\n *** Once you have finished editing the file, save it and press RETURN\n')
+            if ischar(curVal) && startsWith(curVal,'ENTER_')
+                unconfigured{end+1} = sprintf('%s.%s', f0{ii}, f1{jj});
+            end
+        end
+    end
 
-        pause
-        outputSettings = mpqc.settings.readSettings;
-        [outputSettings,allValid] = mpqc.settings.checkSettingsAreValid(outputSettings);
-        return
+    if ~isempty(unconfigured)
+        msg = sprintf('\n *** These settings still hold default placeholder values:\n');
+        msg = [msg, sprintf('   - %s\n', unconfigured{:})];
+        msg = [msg, sprintf('\n *** Edit %s to set them for your system.\n', settingsFile)];
+
+        error('mpqc:settings:unconfigured', '%s', msg)
     end
 
 
@@ -117,7 +133,6 @@ function reformattedSettings = readSettings(fname)
     f0 = fields(DEFAULT_SETTINGS);
     for ii = 1:length(f0);
         f1 = fields(DEFAULT_SETTINGS.(f0{ii}));
-
 
 
         if ~isfield(settingsFromYML, f0{ii})
@@ -202,8 +217,8 @@ function reformattedSettings = readSettings(fname)
 
 
     % Make sure the microscope name does not contain weird characters
-    outputSettings.microscope.name = regexprep(outputSettings.microscope.name, ' ','-');
-    outputSettings.microscope.name = regexprep(outputSettings.microscope.name, '[^0-9a-z_A-Z-]','');
+    reformattedSettings.microscope.name = regexprep(outputSettings.microscope.name, ' ','_');
+    reformattedSettings.microscope.name = regexprep(reformattedSettings.microscope.name, '[^0-9a-zA-Z_-]','');
 
     % If there are missing or invalid values we will replace these in the settings file as well as making
     % a backup copy of the original file.

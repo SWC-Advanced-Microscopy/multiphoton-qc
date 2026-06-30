@@ -1,25 +1,45 @@
 
-# Change-Log
+# MPQC Change-Log
 
 
+### 2026/06/23
+ * Prompts to edit default fields in YAML. More graceful failure if YAML is broken.
+ * Bugfix so microscope name returned without funny characters.
+ * `mpqc.settings.findSettingsFile` with no output argument now prints the settings-file path.
 
-### 2026/04/33
- * Fix typo that was causing numGains to not work for record.lens_paper
+### 2026/06/04
+* BUGFIX: Correctly handle standard source data with multiple channels.
+* BUGFIX: Ensure PMT gains are displayed on the x axis.
 
+### 2026/06/02
+* PDF report generator updated to include power data and standard light source plots. Isabell Whiteley [PR #131](https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/pull/131).
+
+### 2026/05/13
+* Power recording GUI now prompts to save data when the figure is closed without saving. Isabell Whiteley [PR #121](https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/pull/121).
+
+### 2026/04/23
+ * BUGFIX: Fix typo that was causing numGains to not work for record.lens_paper
+
+### 2026/04/15
+* BUGFIX: `analyse.get_quantalsize_from_file` now fails gracefully if one of the channels does not work.
+
+### 2025/04/02
+* New ThorlabsPowerMeter class supporting PM100D, PM101, S425C, and S121C sensors. Isabell Whiteley [PR #97](https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/pull/97).
 
 ### 2026/03/17
-
 * Merged in longitudinal electrical noise plots. 
+* Bidi scanning disabled in bead stack recordings.
+* Laser power is set to zero after completing a power series.
 
 ### 2026/03/10
+* `measurePSF` reports to user if the Curve Fitting or Image Processing toolbox is not installed. 
 
-* measurePSF reports to user if the Curve Fitting or Image Processing toolbox is not installed. 
+### 2026/02/11
+* Power meter zeroing function added. ThorlabsPowerMeter updated and tested on PM100D. Isabell Whiteley [PR #114](https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/pull/114).
 
-
-### 2025/12/94
+### 2025/12/04
 * Allow serial number of equipment to be numeric only. 
 * Merge dev into master
-
 
 ### 2025/12/01
 * Major improvements to power measurement to allow users to specify which beams to calibrate, if there are multiple beams configured. Sumiya Kuroda [Issues #108](https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/issues/108).
@@ -28,15 +48,11 @@
 * UPDATE: Convert power measurement code to a class and add features to enable automation 
      of power measurements. Streamline how the interface to the power meter is handled. RAAC
 
-
 ### 2025/03/07
 * NEW: Add facility for checking calibrated power at the sample plane automatically. Isabell Whiteley [PR #95]([https://github.com/SWC-Advanced-Microscopy/multiphoton-qc/pull/95).
 
-
-
 ### 2025/02/27
 * Run lens paper and standard source without ScanImage offset subtraction. 
-
 
 ### 2025/02/24
 * NEW: filter uniform slide more aggressively, which is needed for cases with uniform images
@@ -45,7 +61,6 @@
 * BUGFIX: correctly loads ScanImage TIFFs from systems with 2 beams
 * BUGFIX: deal nicely with low photon counts.
 * Minor improvements to lens paper recorder.
-
 
 ### 2025/02/17
 Merge of a bunch of recent changes by Rob Campbell
@@ -60,11 +75,9 @@ Merge of a bunch of recent changes by Rob Campbell
 * Electrical noise function now saves all available channels automatically. 
 * Added simple code in `tools` for converting the standard source to photons. 
 
-
 ### 2024/07/19
 * NEW FEATURE: `mpsf.record` functions now all accept parameter/value pairs via standard interface.
 Inputs that are required not supplied when the function is called are requested interactively at the CLI. Isabell Whiteley [PR #70](https://github.com/SWC-Advanced-Microscopy/measurePSF/pull/70).
-
 
 ### 2024/07/05
 * Updates to standard light source. Plotting of said. Bugfixes.
@@ -118,7 +131,7 @@ Inputs that are required not supplied when the function is called are requested 
 * Grid2MicsPerPixel optionally can extract the grid image directly from ScanImage.
 
 ### 2018/11/09
-* Add `record.PSF`.
+* Add `record.PSF`
 
 ### 2017/11/28
 * Simple GUI for interactive cropping of a desired bead.
@@ -128,6 +141,3 @@ Inputs that are required not supplied when the function is called are requested 
 
 ### 2017/11/27
 * Convert `measurePSF` to a class so adding new features is easier.
-
-
-
