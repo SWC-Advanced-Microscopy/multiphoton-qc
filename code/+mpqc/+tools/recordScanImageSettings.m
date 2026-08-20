@@ -32,7 +32,7 @@ function settings = recordScanImageSettings(API)
     end
 
 
-    if API.versionGreaterThan(2023.0)
+    if API.versionGreaterThan('2023.0')
         settings.turnAroundBlanking = API.hSI.hBeams.turnAroundBlanking;
     end
     settings.flybackBlanking = API.hSI.hBeams.flybackBlanking;

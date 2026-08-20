@@ -65,17 +65,18 @@ classdef silinker < handle
         function isGreater = versionGreaterThan(obj,verToTest)
             % Return true if the current ScanImage version is newer than that defined by string verToTest
             %
-            % SIBT.versionGreaterThan(obj,verToTest)
+            % silinker.versionGreaterThan(obj,verToTest)
             %
             % Inputs
             % verToTest - should be in the format '5.6' or '5.6.1' or
             % '2020.0'
             %
-            % Note: This method ignores the patch number from SI Basic. 
+            % Note: This method ignores the patch number from SI Basic.
             % So 2020.1  and 2020.1.1 are treated as the same thing.
 
             isGreater = nan;
             if ~ischar(verToTest)
+                fprintf('silinker.versionGreaterThan expects a string input\n')
                 return
             end
 
@@ -302,7 +303,7 @@ classdef silinker < handle
 
 
         function setBeamMinMaxPowerInW(obj,minMaxW,beamIndex)
-            % Set the min and max power of the beam 
+            % Set the min and max power of the beam
             %
             % Purpose
             % The Machine Data File of SI via the Settings panel determines the maximum and
@@ -330,7 +331,7 @@ classdef silinker < handle
                 % the array before it is populated
                 obj.hSI.hBeams.hBeams{beamIndex}.powerFraction2PowerWattLut = [0,0;1,1];
             end
-            
+
             obj.hSI.hBeams.hBeams{beamIndex}.powerFraction2PowerWattLut(:,2) = minMaxW;
 
         end % setBeamMinMaxPowerInW
