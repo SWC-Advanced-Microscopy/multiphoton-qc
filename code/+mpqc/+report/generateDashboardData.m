@@ -56,7 +56,7 @@ pow = mpqc.longitudinal.power(data_dir);
 if isempty(pow)
     disp('No power data')
 else
-   % TO DO add in wavelength
+    % TO DO add in wavelength
     varNames = {'date','maxPower_mW','percentAt100mW'};
     dates = [pow.date{:}]';
     datesISO = cellstr(string(dates, "yyyy-MM-dd'T'HH:mm:ss"));
@@ -125,7 +125,25 @@ else
     dashboardData.metrics.photonsPerPixel.data = photonsPerPixel;
 end
 
-
+% Uniform slide
+disp('Searching for uniform slide data')
+xSections = mpqc.longitudinal.uniform_slide(data_dir);
+if isempty(xSections)
+    disp('No cross section data')
+else
+    varNames = {'date','X-axis','Y-axis', 'FOV size'};
+    dates = [xSections.date{:}]';
+    datesISO = cellstr(string(dates, "yyyy-MM-dd'T'HH:mm:ss"));
+    n = numel(datesISO);
+    FOV = cell(n, 1);
+    for ii = 1:n
+        FOV{ii} = {datesISO{ii}, xSections.profile_x(ii), xSections.profile_y(ii),xSections.FOVsize(ii)};
+    end
+    dashboardData.metrics.uniformSlide.label = 'Field Uniformity';
+    dashboardData.metrics.uniformSlide.units = 'um';
+    dashboardData.metrics.uniformSlide.variable_names = varNames;
+    dashboardData.metrics.uniformSlide.data = FOV;
+end
 
 outfile = fullfile(data_dir, 'longitudinalDashboardData.json');
 fid = fopen(outfile, 'w');
@@ -147,109 +165,109 @@ end % generateDashboardData
 
 
 function name = powerRangeName(range)
-    % Turn a [min,max] power range in mW into a series name for the dashboard
-    range = double(range(:))';
-    if isscalar(range) || range(1) == range(end)
-        name = sprintf('power_%gmW', range(1));
-    else
-        name = sprintf('power_%gto%gmW', min(range), max(range));
-    end
+% Turn a [min,max] power range in mW into a series name for the dashboard
+range = double(range(:))';
+if isscalar(range) || range(1) == range(end)
+    name = sprintf('power_%gmW', range(1));
+else
+    name = sprintf('power_%gto%gmW', min(range), max(range));
+end
 end % powerRangeName
 
 
 
 function sys = systemInfoFromSettings(data_dir)
-    % Build the "system" section of the dashboard data from the settings YAML
-    %
-    % The settings file lives in each acquisition sub-directory. We use the most recent
-    % one, since that describes the current state of the microscope. If no settings file
-    % can be found or read we return an empty structure rather than failing: the metrics
-    % are still worth writing out.
+% Build the "system" section of the dashboard data from the settings YAML
+%
+% The settings file lives in each acquisition sub-directory. We use the most recent
+% one, since that describes the current state of the microscope. If no settings file
+% can be found or read we return an empty structure rather than failing: the metrics
+% are still worth writing out.
 
-    sys = struct();
+sys = struct();
 
-    d = dir(fullfile(data_dir, '**', '*_SystemSettings.yml'));
-    if isempty(d)
-        fprintf('No settings file found in %s. Dashboard "system" section will be empty.\n', ...
-            data_dir)
-        return
+d = dir(fullfile(data_dir, '**', '*_SystemSettings.yml'));
+if isempty(d)
+    fprintf('No settings file found in %s. Dashboard "system" section will be empty.\n', ...
+        data_dir)
+    return
+end
+[~, ind] = max([d.datenum]);
+settingsFile = fullfile(d(ind).folder, d(ind).name);
+
+try
+    y = mpqc.yaml.ReadYaml(settingsFile);
+catch ME
+    fprintf('Could not read %s: %s\n', settingsFile, ME.message)
+    return
+end
+
+if isfield(y, 'microscope')
+    sys.microscope = nullIfEmpty(getFieldOrEmpty(y.microscope, 'name'));
+    sys.roomNumber = nullIfEmpty(getFieldOrEmpty(y.microscope, 'roomNumber'));
+end
+
+if isfield(y, 'objective')
+    sys.objective = struct( ...
+        'name', nullIfEmpty(getFieldOrEmpty(y.objective, 'name')), ...
+        'serialNumber', nullIfEmpty(getFieldOrEmpty(y.objective, 'serialNumber')));
+end
+
+% All four PMTs are reported, including those that are not fitted, so that the
+% channel numbering in the dashboard lines up with the hardware.
+PMTs = {};
+for ii = 1:4
+    tPMT = sprintf('PMT_%d', ii);
+    if ~isfield(y, tPMT)
+        continue
     end
-    [~, ind] = max([d.datenum]);
-    settingsFile = fullfile(d(ind).folder, d(ind).name);
+    PMTs{end+1} = struct( ...
+        'id', tPMT, ...
+        'model', nullIfEmpty(getFieldOrEmpty(y.(tPMT), 'model')), ...
+        'channelName', nullIfEmpty(getFieldOrEmpty(y.(tPMT), 'microscopeChannelName')), ...
+        'bandPassFilter', nullIfEmpty(getFieldOrEmpty(y.(tPMT), 'bandPassFilter')));
+end
+sys.PMTs = PMTs;
 
-    try
-        y = mpqc.yaml.ReadYaml(settingsFile);
-    catch ME
-        fprintf('Could not read %s: %s\n', settingsFile, ME.message)
-        return
+% Only the first configured laser is reported
+for ii = 1:3
+    tLaser = sprintf('imagingLaser_%d', ii);
+    if isfield(y, tLaser) && ~isempty(getFieldOrEmpty(y.(tLaser), 'model'))
+        sys.imagingLaser = struct( ...
+            'model', y.(tLaser).model, ...
+            'serialNumber', nullIfEmpty(getFieldOrEmpty(y.(tLaser), 'serialNumber')));
+        break
     end
+end
 
-    if isfield(y, 'microscope')
-        sys.microscope = nullIfEmpty(getFieldOrEmpty(y.microscope, 'name'));
-        sys.roomNumber = nullIfEmpty(getFieldOrEmpty(y.microscope, 'roomNumber'));
+if isfield(y, 'QC')
+    sourceIDs = getFieldOrEmpty(y.QC, 'sourceIDs');
+    if isempty(sourceIDs)
+        sourceIDs = {};
+    elseif ~iscell(sourceIDs)
+        sourceIDs = {sourceIDs};
     end
-
-    if isfield(y, 'objective')
-        sys.objective = struct( ...
-            'name', nullIfEmpty(getFieldOrEmpty(y.objective, 'name')), ...
-            'serialNumber', nullIfEmpty(getFieldOrEmpty(y.objective, 'serialNumber')));
-    end
-
-    % All four PMTs are reported, including those that are not fitted, so that the
-    % channel numbering in the dashboard lines up with the hardware.
-    PMTs = {};
-    for ii = 1:4
-        tPMT = sprintf('PMT_%d', ii);
-        if ~isfield(y, tPMT)
-            continue
-        end
-        PMTs{end+1} = struct( ...
-            'id', tPMT, ...
-            'model', nullIfEmpty(getFieldOrEmpty(y.(tPMT), 'model')), ...
-            'channelName', nullIfEmpty(getFieldOrEmpty(y.(tPMT), 'microscopeChannelName')), ...
-            'bandPassFilter', nullIfEmpty(getFieldOrEmpty(y.(tPMT), 'bandPassFilter')));
-    end
-    sys.PMTs = PMTs;
-
-    % Only the first configured laser is reported
-    for ii = 1:3
-        tLaser = sprintf('imagingLaser_%d', ii);
-        if isfield(y, tLaser) && ~isempty(getFieldOrEmpty(y.(tLaser), 'model'))
-            sys.imagingLaser = struct( ...
-                'model', y.(tLaser).model, ...
-                'serialNumber', nullIfEmpty(getFieldOrEmpty(y.(tLaser), 'serialNumber')));
-            break
-        end
-    end
-
-    if isfield(y, 'QC')
-        sourceIDs = getFieldOrEmpty(y.QC, 'sourceIDs');
-        if isempty(sourceIDs)
-            sourceIDs = {};
-        elseif ~iscell(sourceIDs)
-            sourceIDs = {sourceIDs};
-        end
-        sys.QC = struct('sourceIDs', {sourceIDs});
-    end
+    sys.QC = struct('sourceIDs', {sourceIDs});
+end
 
 end % systemInfoFromSettings
 
 
 
 function val = getFieldOrEmpty(s, fieldName)
-    if isstruct(s) && isfield(s, fieldName)
-        val = s.(fieldName);
-    else
-        val = [];
-    end
+if isstruct(s) && isfield(s, fieldName)
+    val = s.(fieldName);
+else
+    val = [];
+end
 end % getFieldOrEmpty
 
 
 
 function val = nullIfEmpty(val)
-    % jsonencode writes NaN as null but writes [] as an empty array. An unset setting is
-    % a missing scalar value, so null is the correct representation for it.
-    if isempty(val)
-        val = NaN;
-    end
+% jsonencode writes NaN as null but writes [] as an empty array. An unset setting is
+% a missing scalar value, so null is the correct representation for it.
+if isempty(val)
+    val = NaN;
+end
 end % nullIfEmpty
