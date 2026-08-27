@@ -114,6 +114,7 @@ for ii = 1:length(plotting_template)
         out.fileName = {plotting_template(:).name};
         out.profile_y = profile_y;
         out.profile_x = profile_x;
+        out.FOVsize = xData;
         out.date ={plotting_template(:).date};
         out.FOVsize = xData;
         varargout{1} = out;
