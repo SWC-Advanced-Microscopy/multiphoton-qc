@@ -1,5 +1,5 @@
 function varargout = uniform_slide(data_dir,varargin)
-% Longitudinal uniform slide plots showing FWHM in x and y
+% Longitudinal uniform slide plots showing cross sections of the FOV 
 %
 % mpqc.longitudinal.uniform_slide(maintenace_folder_path, varargin)
 %
@@ -8,7 +8,8 @@ function varargout = uniform_slide(data_dir,varargin)
 % Plots all data from given day forward
 %
 % Purpose
-%
+% Displays the central cross section in x and y of a uniform FOV. Can be
+% used to identify any beam movement/misalignment over time
 %
 %
 % Outputs
@@ -75,51 +76,47 @@ for ii = 1:length(plotting_template)
     [slideData,metaData] = mpqc.tools.scanImage_stackLoad(plotting_template(ii).full_path_to_data);
     meanSlide = mean(slideData,[3]);
     [nx, ny] = size(meanSlide);
+    micsPerPixelXY = metaData.micsPerPixelXY;
 
-    % Data smoothed and normalised using same method as plot.renderer.uniform_slide
+    % Utilising renderer.uniform_slide to take the cross sections and
+    % plotting info
+    [profile_x(ii,:),profile_y(ii,:),xData] = mpqc.plot.renderer.uniform_slide(meanSlide,micsPerPixelXY,[],'plotting',false);
 
-     % Smooth it a bit before plotting. Contours and cross sections are further
-    % smoothed on top of this (see below).
-    % The imresize along rows removes artifacts caused by amplifier ringing
-    meanSlide = imresize(meanSlide,[round(size(meanSlide,1)*0.75), size(meanSlide,2)]);
-    meanSlide = imresize(meanSlide,size(slideData,[1 2]));
-    fSize=round(size(meanSlide,1)/10);
-    meanSlide = medfilt2(meanSlide,[fSize,fSize],'symmetric'); %filter heavily
+    fig = mpqc.tools.returnFigureHandleForFile(['long_',mfilename]);
+    subplot(1,2,1)
+    hold on
+    for ii = 1:size(profile_x,1)
+        plot(xData,profile_x(ii,:))
+    end
+    hold off
+    legend(string([plotting_template.date]),'location','best')
+    title('X-axis')
+    xlim([xData(1),xData(end)])
+    ylim([0,1])
+    ylabel('normalized intensity')
+    xlabel('microns')
 
-    % data normalised using same method as plot.renderer.uniform_slide
-    meanSlide = meanSlide-min(meanSlide(:));
-    meanSlide = meanSlide/max(meanSlide(:));
+    subplot(1,2,2)
+    hold on
+    for ii = 1:size(profile_y,1)
+        plot(xData,profile_y(ii,:))
+    end
+    hold off
+    legend(string([plotting_template.date]),'location','best')
+    title('Y-axis')
+    xlim([xData(1),xData(end)])
+    ylim([0,1])
+    ylabel('normalized intensity')
+    xlabel('microns')
 
-
-    cx = round(nx/2);
-    cy = round(ny/2);
-
-    % Central x and y profiles
-    profile_x(ii,:) = meanSlide(cx,:);
-    profile_y(ii,:) = meanSlide(:,cy)';
-
-end
-
-
-% fig = mpqc.tools.returnFigureHandleForFile(sprintf('%s_%02d',mfilename,q));
-subplot(1,2,1)
-hold on 
-for ii = 1:size(profile_x,1)
-    plot(profile_x(ii,:))
-end
-hold off
-legend(string([plotting_template.date]),'location','best') 
-% xlim([profile_x(1,1),profile_x(1,end)])
-ylim([0,1])
-
-subplot(1,2,2)
-hold on 
-for ii = 1:size(profile_y,1)
-    plot(profile_y(ii,:))
-end
-hold off
-legend(string([plotting_template.date]),'location','best')
-% xlim([profile_y(1),profile_y(end)])
-ylim([0,1])
+    % Output of the main function
+    if nargout>0
+        out.fileName = {plotting_template(:).name};
+        out.profile_y = profile_y;
+        out.profile_x = profile_x;
+        out.date ={plotting_template(:).date};
+        out.FOVsize = xData;
+        varargout{1} = out;
+    end
 
 end

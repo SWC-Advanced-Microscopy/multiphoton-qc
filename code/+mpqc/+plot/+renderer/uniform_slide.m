@@ -1,4 +1,4 @@
-function uniform_slide(im,micsPerPixelXY,hFig,varargin)
+function varargout = uniform_slide(im,micsPerPixelXY,hFig,varargin)
     % Render the uniform slide field homogeneity plots into a figure
     %
     % mpqc.plot.renderer.uniform_slide(im,micsPerPixelXY,hFig,'param1','val1',...)
@@ -26,9 +26,13 @@ function uniform_slide(im,micsPerPixelXY,hFig,varargin)
     %              If 'scanner', the lines run through the centre parallel with the scan axes.
     %              This is the default. If 'diagonal' they run from the image corners, which are the
     %              darkest parts of the field of view.
+    % plotting - Used to stop plots from output in longitudinal.uniform_slide. Function defaults to true 
+    % if no input given
     %
-    % Outputs
-    % none
+    % Outputs [optional, typically used for mpqc.longitudinal.uniform_slide]
+    % profile_x - Normalised horizontal (X) cross-section.
+    % profile_y - Normalised vertical (Y) cross-section.
+    % xData     - Micron positions for the cross-sections.
     %
     % See also
     % mpqc.plot.uniform_slide, mpqc.interfaces.UniformSlideLive
@@ -41,17 +45,17 @@ function uniform_slide(im,micsPerPixelXY,hFig,varargin)
     params.CaseSensitive = false;
     params.addParamValue('overlayZoom', [1.2,2,4], @(x) isnumeric(x) && isscalar(x) || isvector(x) || isempty(x));
     params.addParamValue('crossSections', 'scanner', @(x) isstr(x) && (strcmpi(x,'scanner') || strcmpi(x,'diagonal')));
+    params.addParamValue('plotting',true,@(x) islogical(x) && isscalar(x));
     params.parse(varargin{:});
 
     overlayZoom = params.Results.overlayZoom;
     crossSections = params.Results.crossSections;
+    plotting = params.Results.plotting;
+    % Data are only needed when plotting or when an output was requested.
+    if ~plotting && nargout == 0
+        return
+    end
 
-
-    % Make the target figure current without stealing focus, then wipe it
-    set(0,'CurrentFigure',hFig)
-    clf(hFig)
-
-    subplot(1,2,1)
     plotData = double(im);
 
     % Smooth it a bit before plotting. Contours and cross sections are further
@@ -66,7 +70,30 @@ function uniform_slide(im,micsPerPixelXY,hFig,varargin)
     plotData = plotData-min(plotData(:));
     plotData = plotData/max(plotData(:));
 
+    % Calculate the cross-sections once. These are also the function outputs
+    % when plotting is disabled.
+    switch crossSections
+        case 'diagonal'
+            micsPerDataPoint = sqrt(2*micsPerPixelXY^2);
+            f_diag = eye(length(plotData));
+            profile_x = plotData(find(f_diag));
+            profile_y = plotData(find(rot90(f_diag)));
+        case 'scanner'
+            micsPerDataPoint = micsPerPixelXY;
+            profile_x = plotData(round(size(plotData,1)/2),:);
+            profile_y = plotData(:,round(size(plotData,2)/2));
+    end
 
+    xData = (1:length(profile_x)) * micsPerDataPoint;
+    xData = xData - mean(xData);
+
+if plotting
+
+% Make the target figure current without stealing focus, then wipe it
+    set(0,'CurrentFigure',hFig)
+    clf(hFig)
+
+    subplot(1,2,1)
 
     imagesc(plotData)
     axis equal tight
@@ -122,32 +149,16 @@ function uniform_slide(im,micsPerPixelXY,hFig,varargin)
 
     switch crossSections
         case 'diagonal'
-            micsPerDataPoint = sqrt(2*micsPerPixelXY^2);
-
-            f_diag = eye(length(plotData));
-            yData = plotData(find(f_diag));
-            xData = (1:length(yData)) * micsPerDataPoint;
-            xData = xData - mean(xData);
-
-            hXsection1 = plot(xData,yData,'-r','linewidth',2);
+            hXsection1 = plot(xData,profile_x,'-r','linewidth',2);
 
             hold on
 
-            yData = plotData(find(rot90(f_diag)));
-
-            hXsection2 = plot(xData,yData,'-c','linewidth',2);
+            hXsection2 = plot(xData,profile_y,'-c','linewidth',2);
 
         case 'scanner'
-            micsPerDataPoint = micsPerPixelXY;
-
-            xSectionX = plotData(:, round(size(plotData,2)/2));
-            xSectionY = plotData(round(size(plotData,2)/2),:);
-
-            xData = (1:length(xSectionY)) * micsPerDataPoint;
-            xData = xData - mean(xData);
-            hXsection1 = plot(xData,xSectionY,'-r','linewidth',2);
+            hXsection1 = plot(xData,profile_x,'-r','linewidth',2);
             hold on
-            hXsection2 = plot(xData,xSectionX,'-c','linewidth',2);
+            hXsection2 = plot(xData,profile_y,'-c','linewidth',2);
     end
 
 
@@ -188,3 +199,9 @@ function uniform_slide(im,micsPerPixelXY,hFig,varargin)
         hFig.Position(3) = hFig.Position(4)*2.3;
         setappdata(hFig,'mpqc_renderer_uniform_slide_sized',true)
     end
+
+end
+
+if nargout >= 1, varargout{1} = profile_x; end
+if nargout >= 2, varargout{2} = profile_y; end
+if nargout >= 3, varargout{3} = xData; end
