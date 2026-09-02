@@ -87,7 +87,7 @@ if isequal(plotting_template(:).wavelength) &&  max([plotting_template.power]) -
     xticklabels(xlabels)
     title('Photons per Pixel')
     ylabel('Photons')
-    legend(legendLabels,'Location','northeast')
+    legend(legendLabels,'Location','best')
 
     if nargout>0
         out.fileName = {plotting_template(:).name};
@@ -145,7 +145,7 @@ else
     xlabels = string([plotting_template.date]);
     xticks(1:length(xlabels))
     xticklabels(xlabels)
-    legend(legendLabels,'Location','northeast')
+    legend(legendLabels,'Location','best')
     title('Photons per Pixel')
     ylabel('Photons')
 

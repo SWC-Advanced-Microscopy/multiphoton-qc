@@ -115,7 +115,7 @@ title('Mean pixel value at max gain')
 ylabel('Mean pixel value')
 xticks(1:length(xlabels))
 xticklabels(xlabels)
-legend(channelName(allChan),'Location','NorthWest')
+legend(channelName(allChan),'Location','best')
 
 if nargout>0
     out.fileName = {plotting_template(:).name};

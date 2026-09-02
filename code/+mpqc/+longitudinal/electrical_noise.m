@@ -139,7 +139,7 @@ xticks(1:length(xlabels))
 xticklabels(xlabels)
 title('Two SD')
 ylabel('Pixel value')
-legend
+legend('Location','best')
 
 
 % Output of the main function
