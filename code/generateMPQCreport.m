@@ -181,21 +181,22 @@ function varargout=generateMPQCreport(data_dir)
         chapter = Chapter('Title', 'Gain from lens paper');
 
         for ii=1:length(f)
-            [~,txt] = GEN(f(ii)).plotting_func(GEN(f(ii)).full_path_to_data,4);
+            fname = GEN(f(ii)).full_path_to_data;
+            [~,txt,figHandles] = GEN(f(ii)).plotting_func(fname,4);
 
-            fig = Figure();
+            for cc = 1:numel(figHandles)
+                fig = Figure(figHandles(cc));
 
-            figImg = Image(getSnapshotImage(fig, rpt));
-            figImg.Style = imgStyle;
-            delete(gcf);
+                figImg = Image(getSnapshotImage(fig, rpt));
+                figImg.Style = imgStyle;
+                delete(figHandles(cc));
 
-            [~,fname] = fileparts(GEN(f(ii)).full_path_to_data);
+                p1 = Paragraph(txt{cc});
 
-            p1 = Paragraph(txt);
-
-            add(chapter,p1)
-            add(chapter, figImg);
-            add(chapter,br)
+                add(chapter,p1)
+                add(chapter, figImg);
+                add(chapter,br)
+            end
         end
 
         add(rpt, chapter);

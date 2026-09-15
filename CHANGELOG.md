@@ -1,6 +1,8 @@
 
 # MPQC Change-Log
 
+### 2026/08/11
+ * `mpqc.plot.lens_paper` now supports multi-channel TIF images. Sumiya Kuroda.
 
 ### 2026/07/27
  * First write of the YAML file has the curly bracket format throughout, including for empty fields. 
